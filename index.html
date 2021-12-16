@@ -1,0 +1,384 @@
+<html>
+    <head>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script src="https://photino.github.io/jquery-feyn/js/jquery.feyn-1.0.1.min.js"></script>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400&display=swap" rel="stylesheet"> 
+        <script src="vertices.js"></script>
+
+        <title>EFT diagrams</title>
+
+        <style>
+            body {
+                margin: 0 auto;
+                margin-top: 2rem;
+                /* border: 1pt solid #777; */
+                box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19) !important;
+                padding: 1rem;
+                width: 600px;
+                font-size: 1.2rem;
+                color: #000;
+                font-family: 'Source Sans 3', sans-serif;
+                overflow-y: scroll;
+                font-weight: 300;
+                line-height: 150%;
+            }
+            
+            #particle-select {
+                margin: 0 auto;
+            }
+
+            .anti {
+                text-decoration: overline;
+            }
+
+            .particle {
+                border-radius: 8px;
+                text-align: center;
+                cursor: pointer;
+            }
+
+            .quark {
+                border: 2pt solid hsl(320, 30%, 40%);
+            }
+
+            .quark:hover {
+                background-color: hsl(320, 30%, 80%);
+            }
+
+            .quark.selected {
+                background-color: hsl(320, 30%, 60%);
+            }
+
+            .lepton {
+                border: 2pt solid hsl(160, 30%, 40%);
+            }
+
+            .lepton:hover {
+                background-color: hsl(160, 30%, 80%);
+            }
+
+            .lepton.selected {
+                background-color: hsl(160, 30%, 60%);
+            }
+
+            .gauge-boson {
+                border: 2pt solid hsl(0, 65%, 40%);
+            }
+
+            .gauge-boson:hover {
+                background-color: hsl(0, 65%, 80%);
+            }
+
+            .gauge-boson.selected {
+                background-color: hsl(0, 65%, 60%);
+            }
+
+            .scalar-boson {
+                border: 2pt solid hsl(43, 100%, 40%);
+            }
+
+            .scalar-boson:hover {
+                background-color: hsl(43, 100%, 80%);
+            }
+
+            .scalar-boson.selected {
+                background-color: hsl(43, 100%, 60%);
+            }
+
+            #feynman-container {
+                flex-wrap: wrap;
+            }
+
+            .feynman-diagram {
+                flex: 0 0 180px;
+                height: 180px;
+                margin-bottom: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Rahul's Fabulous EFT Diagrams</h1>
+
+        <p>This page generates cool Feynman diagrams, Rahul will need to put
+        more useful text here because I barely know what an EFT is.</p>
+
+        <h2>EFT parameters</h2>
+        
+        <p>Please select your EFT parameters from the following options:</p>
+
+        <select id="select-eft">
+            <option selected disabled hidden>Select EFT parameters</option>
+            <option value="cG">cG</option>
+            <option value="cW">cW</option>
+            <option value="cH">cH</option>
+            <option value="cHbox">cHbox</option>
+            <option value="cHDD">cHDD</option>
+            <option value="cHG">cHG</option>
+            <option value="cHW">cHW</option>
+            <option value="cHB">cHB</option>
+            <option value="cHWB">cHWB</option>
+            <option value="ceHRe">ceHRe</option>
+            <option value="cuHRe">cuHRe</option>
+            <option value="cdHRe">cdHRe</option>
+            <option value="ceWRe">ceWRe</option>
+            <option value="ceBRe">ceBRe</option>
+            <option value="cuGRe">cuGRe</option>
+            <option value="cuWRe">cuWRe</option>
+            <option value="cuBRe">cuBRe</option>
+            <option value="cdGRe">cdGRe</option>
+            <option value="cdWRe">cdWRe</option>
+            <option value="cdBRe">cdBRe</option>
+            <option value="cHl1">cHl1</option>
+            <option value="cHl3">cHl3</option>
+            <option value="cHe">cHe</option>
+            <option value="cHq1">cHq1</option>
+            <option value="cHq3">cHq3</option>
+            <option value="cHu">cHu</option>
+            <option value="cHd">cHd</option>
+            <option value="cHudRe">cHudRe</option>
+            <option value="cll">cll</option>
+            <option value="cll1">cll1</option>
+            <option value="cqq1">cqq1</option>
+            <option value="cqq11">cqq11</option>
+            <option value="cqq3">cqq3</option>
+            <option value="cqq31">cqq31</option>
+            <option value="clq1">clq1</option>
+            <option value="clq3">clq3</option>
+            <option value="cee">cee</option>
+            <option value="cuu">cuu</option>
+            <option value="cuu1">cuu1</option>
+            <option value="cdd">cdd</option>
+            <option value="cdd1">cdd1</option>
+            <option value="ceu">ceu</option>
+            <option value="ced">ced</option>
+            <option value="cud1">cud1</option>
+            <option value="cud8">cud8</option>
+            <option value="cle">cle</option>
+            <option value="clu">clu</option>
+            <option value="cld">cld</option>
+            <option value="cqe">cqe</option>
+            <option value="cqu1">cqu1</option>
+            <option value="cqu8">cqu8</option>
+            <option value="cqd1">cqd1</option>
+            <option value="cqd8">cqd8</option>
+            <option value="cledqRe">cledqRe</option>
+            <option value="cquqd1Re">cquqd1Re</option>
+            <option value="cquqd11Re">cquqd11Re</option>
+            <option value="cquqd8Re">cquqd8Re</option>
+            <option value="cquqd81Re">cquqd81Re</option>
+            <option value="clequ1Re">clequ1Re</option>
+            <option value="clequ3Re">clequ3Re</option>
+            <option value="cGtil">cGtil</option>
+            <option value="cWtil">cWtil</option>
+            <option value="cHGtil">cHGtil</option>
+            <option value="cHWtil">cHWtil</option>
+            <option value="cHBtil">cHBtil</option>
+            <option value="cHWBtil">cHWBtil</option>
+            <option value="ceWIm">ceWIm</option>
+            <option value="ceBIm">ceBIm</option>
+            <option value="cuGIm">cuGIm</option>
+            <option value="cuWIm">cuWIm</option>
+            <option value="cuBIm">cuBIm</option>
+            <option value="cdGIm">cdGIm</option>
+            <option value="cdWIm">cdWIm</option>
+            <option value="cdBIm">cdBIm</option>
+            <option value="cHudIm">cHudIm</option>
+            <option value="ceHIm">ceHIm</option>
+            <option value="cuHIm">cuHIm</option>
+            <option value="cdHIm">cdHIm</option>
+            <option value="cledqIm">cledqIm</option>
+            <option value="cquqd1Im">cquqd1Im</option>
+            <option value="cquqd8Im">cquqd8Im</option>
+            <option value="cquqd11Im">cquqd11Im</option>
+            <option value="cquqd81Im">cquqd81Im</option>
+            <option value="clequ1Im">clequ1Im</option>
+            <option value="clequ3Im">clequ3Im</option>
+            <option value="ceH">ceH</option>
+            <option value="cuH">cuH</option>
+            <option value="cdH">cdH</option>
+            <option value="ceW">ceW</option>
+            <option value="ceB">ceB</option>
+            <option value="cuG">cuG</option>
+            <option value="cuW">cuW</option>
+            <option value="cuB">cuB</option>
+            <option value="cdG">cdG</option>
+            <option value="cdW">cdW</option>
+            <option value="cdB">cdB</option>
+            <option value="cHud">cHud</option>
+            <option value="cledq">cledq</option>
+            <option value="cquqd1">cquqd1</option>
+            <option value="cquqd11">cquqd11</option>
+            <option value="cquqd8">cquqd8</option>
+            <option value="cquqd81">cquqd81</option>
+            <option value="clequ1">clequ1</option>
+            <option value="clequ3">clequ3</option>
+            <option value="cth">cth</option>
+        </select>
+
+        <h2>Particle</h2>
+
+        <p>Please select the particle of your choice:</p>
+        
+        <input id="particle-selection" style="display: none"></input>
+
+        <table id="particle-select">
+            <tbody>
+              <tr height="60px">
+                <td width="60px" class="particle quark" data-value="u">u</td>
+                <td width="60px" class="particle quark" data-value="c">c</td>
+                <td width="60px" class="particle quark" data-value="t">t</td>
+                <td width="60px" class="particle quark" data-value="u~"><span class="anti">u</span></td>
+                <td width="60px" class="particle quark" data-value="c~"><span class="anti">c</span></td>
+                <td width="60px" class="particle quark" data-value="t~"><span class="anti">t</span></td>
+                <td width="60px" class="particle gauge-boson" data-value="g">g</td>
+                <td width="60px" class="particle scalar-boson" data-value="H">H</td>
+              </tr>
+              <tr height="60px">
+                <td class="particle quark" data-value="d">d</td>
+                <td class="particle quark" data-value="s">s</td>
+                <td class="particle quark" data-value="b">b</td>
+                <td class="particle quark" data-value="d~"><span class="anti">d</span></td>
+                <td class="particle quark" data-value="s~"><span class="anti">s</span></td>
+                <td class="particle quark" data-value="b~"><span class="anti">b</span></td>
+                <td class="particle gauge-boson" data-value="a">γ</td>
+                <td></td>
+              </tr>
+              <tr height="60px">
+                <td class="particle lepton" data-value="e-">e<sup>-</sup></td>
+                <td class="particle lepton" data-value="mu-">μ<sup>-</sup></td>
+                <td class="particle lepton" data-value="ta-">τ<sup>-</sup></td>
+                <td class="particle lepton" data-value="e+">e<sup>+</sup></td>
+                <td class="particle lepton" data-value="mu+">μ<sup>+</sup></td>
+                <td class="particle lepton" data-value="ta+">τ<sup>+</sup></td>
+                <td class="particle gauge-boson" data-value="Z">Z</td>
+                <td></td>
+              </tr>
+              <tr height="60px">
+                <td class="particle lepton" data-value="ve">ν<sub>e</sub></td>
+                <td class="particle lepton" data-value="vm">ν<sub>μ</sub></td>
+                <td class="particle lepton" data-value="vt">ν<sub>τ</sub></td>
+                <td class="particle lepton" data-value="ve~"><span class="anti">ν<sub>e</sub></span></td>
+                <td class="particle lepton" data-value="vm~"><span class="anti">ν<sub>μ</sub></span></td>
+                <td class="particle lepton" data-value="vt~"><span class="anti">ν<sub>τ</sub></span></td>
+                <td class="particle gauge-boson" data-value="W+">W<sup>+</sup></td>
+                <td class="particle gauge-boson" data-value="W-">W<sup>-</sup></td>
+              </tr>
+            </tbody>
+            </table>
+
+        <h2>Result vertices</h2>
+
+        <div id="feynman-container" style="display: flex; justify-content: center;">
+            <p>Please make sure to select both EFT parameters and a particle.</p>
+        </div>
+
+        <script>
+            function prettyparticle(p) {
+                if(p == "a") {
+                    return "γ";
+                } else if(p == "W+") {
+                    return "W&#8314;";
+                } else if(p == "W-") {
+                    return "W&#8315;";
+                } else if(p == "ve") {
+                    return "νe";
+                } else if(p == "ve~") {
+                    return "νe~";
+                } else if(p == "vm") {
+                    return "νμ";
+                } else if(p == "vm~") {
+                    return "νμ~";
+                } else if(p == "vt") {
+                    return "ντ";
+                } else if(p == "vt~") {
+                    return "ντ~";
+                } else if(p == "e-") {
+                    return "e&#8315;";
+                } else if(p == "e+") {
+                    return "e&#8314;";
+                } else if(p == "mu-") {
+                    return "μ&#8315;";
+                } else if(p == "mu+") {
+                    return "μ&#8314;";
+                } else if(p == "ta-") {
+                    return "τ&#8315;";
+                } else if(p == "ta+") {
+                    return "τ&#8314;";
+                } else {
+                    return p;
+                }
+            }
+
+            function render() {
+                var eft = $('#select-eft').val();
+                var par = $('#particle-selection').val();
+
+                if (eft && par) {
+                    var data = vertices[eft][par];
+
+                    $('#feynman-container').empty();
+
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; ++i) {
+                            $('#feynman-container').append("<div class=\"feynman-diagram\" id=\"container" + i + "\"></div>");
+
+                            var arr = data[i];
+
+                            console.log(arr);
+
+                            var diag = {
+                                incoming: {},
+                                vertex: {v: '90, 90'},
+                                scalar: {line: ''},
+                                photon: {line: ''},
+                                fermion: {line: ''},
+                                gluon: {line: ''},
+                                label: {}
+                            }
+
+                            for (var j = 0; j < arr.length; ++j) {
+                                t = j * (2 * Math.PI) / arr.length;
+                                p = arr[j];
+
+                                if (p == "a" || p == "Z" || p == "W+" || p == "W-") {
+                                    target = "photon";
+                                } else if (p == "g") {
+                                    target = "gluon";
+                                } else if (p == "H") {
+                                    target = "scalar";
+                                } else {
+                                    target = "fermion";
+                                }
+
+                                diag.incoming["i" + j] = (Math.cos(t) * 90 + 90) + "," + (Math.sin(t) * 90 + 90);
+                                diag[target].line += "i" + j + "-v,";
+                                diag.label["t" + j] = [(Math.cos(t - 0.15) * 80 + 90) + "," + (Math.sin(t - 0.15) * 80 + 90 + 5), prettyparticle(p)];
+                            }
+
+
+                            $('#container' + i).feyn(diag);
+                        }
+
+                    } else {
+                        $('#feynman-container').append("<p>This combination did not produce any vertices.</p>");
+                    }
+                }
+            }
+
+            $('.particle').click(function(){
+                $('#particle-select').find('.particle').removeClass('selected');
+                $(this).addClass('selected');
+                var val = $(this).attr('data-value');
+                $('#particle-selection').val(val);
+                $('#particle-selection').change();
+            });
+
+            $('#particle-selection').on('change', render);
+            $('#select-eft').on('change', render);
+          </script>
+    </body>
+</html>
