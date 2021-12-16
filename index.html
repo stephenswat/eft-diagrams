@@ -1,6 +1,8 @@
-<html>
+<!DOCTYPE html>
+<html lang="en-GB">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8" />
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -44,6 +46,14 @@
                 margin: 0 auto;
                 width: 100%;
                 font-size: 1.5rem;
+            }
+
+            #particle-select tbody tr {
+                height: 60px;
+            }
+
+            #particle-select tbody tr td {
+                width: 12.5%;
             }
 
             .anti {
@@ -120,6 +130,7 @@
             }
         </style>
     </head>
+
     <body>
         <h1>Rahul's Fabulous EFT Vertices</h1>
 
@@ -130,21 +141,21 @@
 
         <p>Please select the particle of your choice:</p>
 
-        <input id="particle-selection" style="display: none"></input>
+        <input id="particle-selection" style="display: none" />
 
         <table id="particle-select">
             <tbody>
-              <tr height="60px">
-                <td width="12.5%" class="particle quark" data-value="u">u</td>
-                <td width="12.5%" class="particle quark" data-value="c">c</td>
-                <td width="12.5%" class="particle quark" data-value="t">t</td>
-                <td width="12.5%" class="particle quark" data-value="u~"><span class="anti">u</span></td>
-                <td width="12.5%" class="particle quark" data-value="c~"><span class="anti">c</span></td>
-                <td width="12.5%" class="particle quark" data-value="t~"><span class="anti">t</span></td>
-                <td width="12.5%" class="particle gauge-boson" data-value="g">g</td>
-                <td width="12.5%" class="particle scalar-boson" data-value="H">H</td>
+              <tr>
+                <td class="particle quark" data-value="u">u</td>
+                <td class="particle quark" data-value="c">c</td>
+                <td class="particle quark" data-value="t">t</td>
+                <td class="particle quark" data-value="u~"><span class="anti">u</span></td>
+                <td class="particle quark" data-value="c~"><span class="anti">c</span></td>
+                <td class="particle quark" data-value="t~"><span class="anti">t</span></td>
+                <td class="particle gauge-boson" data-value="g">g</td>
+                <td class="particle scalar-boson" data-value="H">H</td>
               </tr>
-              <tr height="60px">
+              <tr>
                 <td class="particle quark" data-value="d">d</td>
                 <td class="particle quark" data-value="s">s</td>
                 <td class="particle quark" data-value="b">b</td>
@@ -154,7 +165,7 @@
                 <td class="particle gauge-boson" data-value="a">γ</td>
                 <td></td>
               </tr>
-              <tr height="60px">
+              <tr>
                 <td class="particle lepton" data-value="e-">e<sup>-</sup></td>
                 <td class="particle lepton" data-value="mu-">μ<sup>-</sup></td>
                 <td class="particle lepton" data-value="ta-">τ<sup>-</sup></td>
@@ -164,7 +175,7 @@
                 <td class="particle gauge-boson" data-value="Z">Z</td>
                 <td></td>
               </tr>
-              <tr height="60px">
+              <tr>
                 <td class="particle lepton" data-value="ve">ν<sub>e</sub></td>
                 <td class="particle lepton" data-value="vm">ν<sub>μ</sub></td>
                 <td class="particle lepton" data-value="vt">ν<sub>τ</sub></td>
