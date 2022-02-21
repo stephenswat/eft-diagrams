@@ -7,9 +7,13 @@
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <script src="https://photino.github.io/jquery-feyn/js/jquery.feyn-1.0.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/latest.min.js" integrity="sha512-/kYnJy6+zL7+sfYX71amPypBreoBzZgp0ujTqNeFuDfLL81iqrpS8T72Q+eFL9cl47CeKW+SRabvI1XkHLtZdQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400&display=swap" rel="stylesheet"> 
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.default.css" integrity="sha512-J0JTRxsBEJ99DP4GamwciDi8VjALSrZneBYrv98BhqHPvlQP6gLbmmuddlYXHDB8hyLtefOIJFlpZBhksCtK8g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
         <script src="vertices.js"></script>
 
         <title>EFT diagrams</title>
@@ -132,10 +136,31 @@
     </head>
 
     <body>
-        <h1>Rahul's Fabulous EFT Vertices</h1>
+        <h1>Visualising EFT Feynman Vertices</h1>
 
-        <p>This page generates cool Feynman diagrams, Rahul will need to put
-        more useful text here because I barely know what an EFT is.</p>
+        <p>This page generates Feynman vertices of particles interacting in
+        an effective theory. Currently available models are SMEFTsim and SMEFTatNLO.</p>
+
+        <h2>EFT Model</h2>
+        
+        <p>Please select your EFT (currently SMEFTsim U35 by default):</p>
+        
+        <select id="select-model">
+            <option value="SMEFTsim">SMEFTsim</option>
+            <option value="SMEFTatNLO">SMEFTatNLO</option>
+        </select>
+
+        <h2>Flavour symmetry</h2>
+
+        <p>Please select your flavour symmetry (currently unused):</p>
+
+        <select id="select-flavour">
+            <option>Maximal flavour violation</option>
+            <option>U(3)5</option>
+            <option>General</option>
+            <option>TopU(3)l</option>
+            <option>Top</option>
+        </select>
 
         <h2>Particle</h2>
 
@@ -188,24 +213,12 @@
             </tbody>
             </table>
 
-            <h2>Flavour symmetry</h2>
-
-            <p>Please select your flavour symmetry (currently unused):</p>
-
-            <select disabled>
-                <option>Maximal flavour violation</option>
-                <option>U(3)5</option>
-                <option>General</option>
-                <option>TopU(3)l</option>
-                <option>Top</option>
-            </select>
-
             <h2>EFT parameters</h2>
         
             <p>Please select your EFT parameters from the following options:</p>
     
+            <p>
             <select id="select-eft">
-                <option selected disabled hidden>Select EFT parameters</option>
                 <option value="cG">cG</option>
                 <option value="cW">cW</option>
                 <option value="cH">cH</option>
@@ -312,6 +325,11 @@
                 <option value="clequ3">clequ3</option>
                 <option value="cth">cth</option>
             </select>
+            </p>
+
+            <p>
+            <span id="eft-term"></span>
+            </p>
 
         <h2>Result vertices</h2>
 
@@ -325,6 +343,12 @@
         href="https://smeftsim.github.io/">SMEFTsim</a>.</div>
 
         <script>
+            var term_map = {
+                "cG": "Q_G = f^{abc} G_\\mu^{a\\nu} G_\\nu^{b\\rho} G_\\rho^{c\\mu}",
+                "ceW": "Q_{eW} = (\\bar l_p \\sigma^{\\mu\\nu} e_r) \\s^i H W_{\\mu\\nu}^i",
+                "cee": "Q_{ee} = (\\bar e_p \\gamma_\\mu e_r)(\\bar e_s \\gamma^\\mu e_t)"
+            }
+
             function prettyparticle(p) {
                 if(p == "a") {
                     return "γ";
@@ -364,6 +388,12 @@
             function render() {
                 var eft = $('#select-eft').val();
                 var par = $('#particle-selection').val();
+
+                if (eft) {
+                    // Rahul: Put your own text here.
+                    $("#eft-term").text("$" + (eft in term_map ? term_map[eft] : "\\sum_{i=0}^n \\mathrm{" + eft + "}") + "$");
+                    MathJax.typeset();
+                }
 
                 if (eft && par) {
                     var data = vertices[eft][par];
@@ -429,6 +459,32 @@
 
             $('#particle-selection').on('change', render);
             $('#select-eft').on('change', render);
+
+            $("document").ready(function() {
+                $("#select-eft").selectize({
+                    maxItems: null
+              });
+            });
+
+            $("document").ready(function() {
+                $("#select-model").selectize({
+              });
+            });
+
+            $("document").ready(function() {
+                $("#select-flavour").selectize({
+              });
+            });
           </script>
+          <script>
+            MathJax = {
+              tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+              }
+            };
+            </script>
+            <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+            </script>
     </body>
 </html>
