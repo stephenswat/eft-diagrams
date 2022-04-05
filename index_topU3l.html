@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script src="https://photino.github.io/jquery-feyn/js/jquery.feyn-1.0.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/latest.min.js" integrity="sha512-/kYnJy6+zL7+sfYX71amPypBreoBzZgp0ujTqNeFuDfLL81iqrpS8T72Q+eFL9cl47CeKW+SRabvI1XkHLtZdQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.default.css" integrity="sha512-J0JTRxsBEJ99DP4GamwciDi8VjALSrZneBYrv98BhqHPvlQP6gLbmmuddlYXHDB8hyLtefOIJFlpZBhksCtK8g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="data_topU3l.js"></script>
+
+        <title>EFT diagrams</title>
+
+        <style>
+            html {
+                background-color: #eee;
+            }
+
+            body {
+                margin: 0;
+                background-color: white;
+                font-family: 'Source Sans 3', sans-serif;
+                overflow-y: scroll;
+                font-weight: 300;
+                line-height: 150%;
+                padding: 2rem;
+                font-size: 1.2rem;
+                color: #000;
+            }
+
+            @media(min-width: 720px) {
+                body {
+                    margin: 0 auto;
+                    margin-top: 2rem;
+                    margin-bottom: 2rem;
+                    /* border: 1pt solid #777; */
+                    box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19) !important;
+                    width: 600px;
+                }
+            }
+
+            #particle-select {
+                margin: 0 auto;
+                width: 100%;
+                font-size: 1.5rem;
+            }
+
+            #particle-select tbody tr {
+                height: 60px;
+            }
+
+            #particle-select tbody tr td {
+                width: 12.5%;
+            }
+
+            .anti {
+                text-decoration: overline;
+            }
+
+            .particle {
+                border-radius: 8px;
+                text-align: center;
+                cursor: pointer;
+            }
+
+            .quark {
+                border: 2pt solid hsl(320, 30%, 40%);
+            }
+
+            .quark:hover {
+                background-color: hsl(320, 30%, 80%);
+            }
+
+            .quark.selected {
+                background-color: hsl(320, 30%, 60%);
+            }
+
+            .lepton {
+                border: 2pt solid hsl(160, 30%, 40%);
+            }
+
+            .lepton:hover {
+                background-color: hsl(160, 30%, 80%);
+            }
+
+            .lepton.selected {
+                background-color: hsl(160, 30%, 60%);
+            }
+
+            .gauge-boson {
+                border: 2pt solid hsl(0, 65%, 40%);
+            }
+
+            .gauge-boson:hover {
+                background-color: hsl(0, 65%, 80%);
+            }
+
+            .gauge-boson.selected {
+                background-color: hsl(0, 65%, 60%);
+            }
+
+            .scalar-boson {
+                border: 2pt solid hsl(43, 100%, 40%);
+            }
+
+            .scalar-boson:hover {
+                background-color: hsl(43, 100%, 80%);
+            }
+
+            .scalar-boson.selected {
+                background-color: hsl(43, 100%, 60%);
+            }
+
+            #feynman-container {
+                flex-wrap: wrap;
+            }
+
+            .feynman-diagram {
+                flex: 0 0 180px;
+                height: 180px;
+                margin-bottom: 1rem;
+            }
+
+            #footer {
+                font-size: small;
+                color: gray;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Visualising EFT Feynman Vertices</h1>
+
+        <p>This page generates Feynman vertices of particles interacting in
+        an effective theory. Currently available models are SMEFTsim and SMEFTatNLO.</p>
+
+        <h2>EFT Model</h2>
+        
+        <p>Please select your EFT (currently SMEFTsim topU3l by default):</p>
+        
+        <select id="select-model">
+            <option value="SMEFTsim">SMEFTsim</option>
+            <option value="SMEFTatNLO">SMEFTatNLO</option>
+        </select>
+
+        <h2>Flavour symmetry</h2>
+
+        <p>Please select your flavour symmetry (currently unused):</p>
+
+        <select id="select-flavour">
+            <option>Maximal flavour violation</option>
+            <option>U(3)5</option>
+            <option>General</option>
+            <option>TopU(3)l</option>
+            <option>Top</option>
+        </select>
+
+        <h2>Particle</h2>
+
+        <p>Please select the particle of your choice:</p>
+
+        <input id="particle-selection" style="display: none" />
+
+        <table id="particle-select">
+            <tbody>
+              <tr>
+                <td class="particle quark" data-value="u">u</td>
+                <td class="particle quark" data-value="c">c</td>
+                <td class="particle quark" data-value="t">t</td>
+                <td class="particle quark" data-value="u~"><span class="anti">u</span></td>
+                <td class="particle quark" data-value="c~"><span class="anti">c</span></td>
+                <td class="particle quark" data-value="t~"><span class="anti">t</span></td>
+                <td class="particle gauge-boson" data-value="g">g</td>
+                <td class="particle scalar-boson" data-value="H">H</td>
+              </tr>
+              <tr>
+                <td class="particle quark" data-value="d">d</td>
+                <td class="particle quark" data-value="s">s</td>
+                <td class="particle quark" data-value="b">b</td>
+                <td class="particle quark" data-value="d~"><span class="anti">d</span></td>
+                <td class="particle quark" data-value="s~"><span class="anti">s</span></td>
+                <td class="particle quark" data-value="b~"><span class="anti">b</span></td>
+                <td class="particle gauge-boson" data-value="a">γ</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="particle lepton" data-value="e-">e<sup>-</sup></td>
+                <td class="particle lepton" data-value="mu-">μ<sup>-</sup></td>
+                <td class="particle lepton" data-value="ta-">τ<sup>-</sup></td>
+                <td class="particle lepton" data-value="e+">e<sup>+</sup></td>
+                <td class="particle lepton" data-value="mu+">μ<sup>+</sup></td>
+                <td class="particle lepton" data-value="ta+">τ<sup>+</sup></td>
+                <td class="particle gauge-boson" data-value="Z">Z</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="particle lepton" data-value="ve">ν<sub>e</sub></td>
+                <td class="particle lepton" data-value="vm">ν<sub>μ</sub></td>
+                <td class="particle lepton" data-value="vt">ν<sub>τ</sub></td>
+                <td class="particle lepton" data-value="ve~"><span class="anti">ν</span><sub>e</sub></td>
+                <td class="particle lepton" data-value="vm~"><span class="anti">ν</span><sub>μ</sub></td>
+                <td class="particle lepton" data-value="vt~"><span class="anti">ν</span><sub>τ</sub></td>
+                <td class="particle gauge-boson" data-value="W+">W<sup>+</sup></td>
+                <td class="particle gauge-boson" data-value="W-">W<sup>-</sup></td>
+              </tr>
+            </tbody>
+            </table>
+
+            <h2>EFT parameters</h2>
+        
+            <p>Please select your EFT parameters from the following options:</p>
+    
+            <p>
+            <select id="select-eft">
+                <option value="cG">cG</option>
+                <option value="cW">cW</option>
+                <option value="cH">cH</option>
+                <option value="cHbox">cHbox</option>
+                <option value="cHDD">cHDD</option>
+                <option value="cHG">cHG</option>
+                <option value="cHW">cHW</option>
+                <option value="cHB">cHB</option>
+                <option value="cHWB">cHWB</option>
+                <option value="cuHRe">cuHRe</option>
+                <option value="ctHRe">ctHRe</option>
+                <option value="cdHRe">cdHRe</option>
+                <option value="cbHRe">cbHRe</option>
+                <option value="cuGRe">cuGRe</option>
+                <option value="ctGRe">ctGRe</option>
+                <option value="cuWRe">cuWRe</option>
+                <option value="ctWRe">ctWRe</option>
+                <option value="cuBRe">cuBRe</option>
+                <option value="ctBRe">ctBRe</option>
+                <option value="cdGRe">cdGRe</option>
+                <option value="cbGRe">cbGRe</option>
+                <option value="cdWRe">cdWRe</option>
+                <option value="cbWRe">cbWRe</option>
+                <option value="cdBRe">cdBRe</option>
+                <option value="cbBRe">cbBRe</option>
+                <option value="cHj1">cHj1</option>
+                <option value="cHQ1">cHQ1</option>
+                <option value="cHj3">cHj3</option>
+                <option value="cHQ3">cHQ3</option>
+                <option value="cHu">cHu</option>
+                <option value="cHt">cHt</option>
+                <option value="cHd">cHd</option>
+                <option value="cHbq">cHbq</option>
+                <option value="cHudRe">cHudRe</option>
+                <option value="cHtbRe">cHtbRe</option>
+                <option value="cjj11">cjj11</option>
+                <option value="cjj18">cjj18</option>
+                <option value="cjj31">cjj31</option>
+                <option value="cjj38">cjj38</option>
+                <option value="cQj11">cQj11</option>
+                <option value="cQj18">cQj18</option>
+                <option value="cQj31">cQj31</option>
+                <option value="cQj38">cQj38</option>
+                <option value="cQQ1">cQQ1</option>
+                <option value="cQQ8">cQQ8</option>
+                <option value="cuu1">cuu1</option>
+                <option value="cuu8">cuu8</option>
+                <option value="ctt">ctt</option>
+                <option value="ctu1">ctu1</option>
+                <option value="ctu8">ctu8</option>
+                <option value="cdd1">cdd1</option>
+                <option value="cdd8">cdd8</option>
+                <option value="cbb">cbb</option>
+                <option value="cbd1">cbd1</option>
+                <option value="cbd8">cbd8</option>
+                <option value="cud1">cud1</option>
+                <option value="ctb1">ctb1</option>
+                <option value="ctd1">ctd1</option>
+                <option value="cbu1">cbu1</option>
+                <option value="cud8">cud8</option>
+                <option value="ctb8">ctb8</option>
+                <option value="ctd8">ctd8</option>
+                <option value="cbu8">cbu8</option>
+                <option value="cutbd1Re">cutbd1Re</option>
+                <option value="cutbd8Re">cutbd8Re</option>
+                <option value="cju1">cju1</option>
+                <option value="cQu1">cQu1</option>
+                <option value="cju8">cju8</option>
+                <option value="cQu8">cQu8</option>
+                <option value="ctj1">ctj1</option>
+                <option value="ctj8">ctj8</option>
+                <option value="cQt1">cQt1</option>
+                <option value="cQt8">cQt8</option>
+                <option value="cjd1">cjd1</option>
+                <option value="cjd8">cjd8</option>
+                <option value="cQd1">cQd1</option>
+                <option value="cQd8">cQd8</option>
+                <option value="cbj1">cbj1</option>
+                <option value="cbj8">cbj8</option>
+                <option value="cQb1">cQb1</option>
+                <option value="cQb8">cQb8</option>
+                <option value="cjQtu1Re">cjQtu1Re</option>
+                <option value="cjQtu8Re">cjQtu8Re</option>
+                <option value="cjQbd1Re">cjQbd1Re</option>
+                <option value="cjQbd8Re">cjQbd8Re</option>
+                <option value="cjujd1Re">cjujd1Re</option>
+                <option value="cjujd8Re">cjujd8Re</option>
+                <option value="cjujd11Re">cjujd11Re</option>
+                <option value="cjujd81Re">cjujd81Re</option>
+                <option value="cQtjd1Re">cQtjd1Re</option>
+                <option value="cQtjd8Re">cQtjd8Re</option>
+                <option value="cjuQb1Re">cjuQb1Re</option>
+                <option value="cjuQb8Re">cjuQb8Re</option>
+                <option value="cQujb1Re">cQujb1Re</option>
+                <option value="cQujb8Re">cQujb8Re</option>
+                <option value="cjtQd1Re">cjtQd1Re</option>
+                <option value="cjtQd8Re">cjtQd8Re</option>
+                <option value="cQtQb1Re">cQtQb1Re</option>
+                <option value="cQtQb8Re">cQtQb8Re</option>
+                <option value="ceHRe">ceHRe</option>
+                <option value="ceWRe">ceWRe</option>
+                <option value="ceBRe">ceBRe</option>
+                <option value="cHl1">cHl1</option>
+                <option value="cHl3">cHl3</option>
+                <option value="cHe">cHe</option>
+                <option value="cll">cll</option>
+                <option value="cll1">cll1</option>
+                <option value="clj1">clj1</option>
+                <option value="clj3">clj3</option>
+                <option value="cQl1">cQl1</option>
+                <option value="cQl3">cQl3</option>
+                <option value="cee">cee</option>
+                <option value="ceu">ceu</option>
+                <option value="cte">cte</option>
+                <option value="ced">ced</option>
+                <option value="cbe">cbe</option>
+                <option value="cje">cje</option>
+                <option value="cQe">cQe</option>
+                <option value="clu">clu</option>
+                <option value="ctl">ctl</option>
+                <option value="cld">cld</option>
+                <option value="cbl">cbl</option>
+                <option value="cle">cle</option>
+                <option value="cledjRe">cledjRe</option>
+                <option value="clebQRe">clebQRe</option>
+                <option value="cleju1Re">cleju1Re</option>
+                <option value="cleQt1Re">cleQt1Re</option>
+                <option value="cleju3Re">cleju3Re</option>
+                <option value="cleQt3Re">cleQt3Re</option>
+                <option value="cGtil">cGtil</option>
+                <option value="cWtil">cWtil</option>
+                <option value="cHGtil">cHGtil</option>
+                <option value="cHWtil">cHWtil</option>
+                <option value="cHBtil">cHBtil</option>
+                <option value="cHWBtil">cHWBtil</option>
+                <option value="cuGIm">cuGIm</option>
+                <option value="ctGIm">ctGIm</option>
+                <option value="cuWIm">cuWIm</option>
+                <option value="ctWIm">ctWIm</option>
+                <option value="cuBIm">cuBIm</option>
+                <option value="ctBIm">ctBIm</option>
+                <option value="cdGIm">cdGIm</option>
+                <option value="cbGIm">cbGIm</option>
+                <option value="cdWIm">cdWIm</option>
+                <option value="cbWIm">cbWIm</option>
+                <option value="cdBIm">cdBIm</option>
+                <option value="cbBIm">cbBIm</option>
+                <option value="cuHIm">cuHIm</option>
+                <option value="ctHIm">ctHIm</option>
+                <option value="cdHIm">cdHIm</option>
+                <option value="cbHIm">cbHIm</option>
+                <option value="cHudIm">cHudIm</option>
+                <option value="cHtbIm">cHtbIm</option>
+                <option value="cutbd1Im">cutbd1Im</option>
+                <option value="cutbd8Im">cutbd8Im</option>
+                <option value="cjQtu1Im">cjQtu1Im</option>
+                <option value="cjQtu8Im">cjQtu8Im</option>
+                <option value="cjQbd1Im">cjQbd1Im</option>
+                <option value="cjQbd8Im">cjQbd8Im</option>
+                <option value="cjujd1Im">cjujd1Im</option>
+                <option value="cjujd8Im">cjujd8Im</option>
+                <option value="cjujd11Im">cjujd11Im</option>
+                <option value="cjujd81Im">cjujd81Im</option>
+                <option value="cQtjd1Im">cQtjd1Im</option>
+                <option value="cQtjd8Im">cQtjd8Im</option>
+                <option value="cjuQb1Im">cjuQb1Im</option>
+                <option value="cjuQb8Im">cjuQb8Im</option>
+                <option value="cQujb1Im">cQujb1Im</option>
+                <option value="cQujb8Im">cQujb8Im</option>
+                <option value="cjtQd1Im">cjtQd1Im</option>
+                <option value="cjtQd8Im">cjtQd8Im</option>
+                <option value="cQtQb1Im">cQtQb1Im</option>
+                <option value="cQtQb8Im">cQtQb8Im</option>
+                <option value="ceHIm">ceHIm</option>
+                <option value="ceWIm">ceWIm</option>
+                <option value="ceBIm">ceBIm</option>
+                <option value="cledjIm">cledjIm</option>
+                <option value="clebQIm">clebQIm</option>
+                <option value="cleju1Im">cleju1Im</option>
+                <option value="cleju3Im">cleju3Im</option>
+                <option value="cleQt1Im">cleQt1Im</option>
+                <option value="cleQt3Im">cleQt3Im</option>
+                <option value="cuH">cuH</option>
+                <option value="ctHH">ctHH</option>
+                <option value="cdH">cdH</option>
+                <option value="cbH">cbH</option>
+                <option value="cuG">cuG</option>
+                <option value="ctG">ctG</option>
+                <option value="cuW">cuW</option>
+                <option value="ctW">ctW</option>
+                <option value="cuB">cuB</option>
+                <option value="ctB">ctB</option>
+                <option value="cdG">cdG</option>
+                <option value="cbG">cbG</option>
+                <option value="cdW">cdW</option>
+                <option value="cbW">cbW</option>
+                <option value="cdB">cdB</option>
+                <option value="cbBB">cbBB</option>
+                <option value="cHud">cHud</option>
+                <option value="cHtb">cHtb</option>
+                <option value="cutbd1">cutbd1</option>
+                <option value="cutbd8">cutbd8</option>
+                <option value="cjQtu1">cjQtu1</option>
+                <option value="cjQtu8">cjQtu8</option>
+                <option value="cjQbd1">cjQbd1</option>
+                <option value="cjQbd8">cjQbd8</option>
+                <option value="cjujd1">cjujd1</option>
+                <option value="cjujd8">cjujd8</option>
+                <option value="cjujd11">cjujd11</option>
+                <option value="cjujd81">cjujd81</option>
+                <option value="cQtjd1">cQtjd1</option>
+                <option value="cQtjd8">cQtjd8</option>
+                <option value="cjuQb1">cjuQb1</option>
+                <option value="cjuQb8">cjuQb8</option>
+                <option value="cQujb1">cQujb1</option>
+                <option value="cQujb8">cQujb8</option>
+                <option value="cjtQd1">cjtQd1</option>
+                <option value="cjtQd8">cjtQd8</option>
+                <option value="cQtQb1">cQtQb1</option>
+                <option value="cQtQb8">cQtQb8</option>
+                <option value="ceH">ceH</option>
+                <option value="ceW">ceW</option>
+                <option value="ceB">ceB</option>
+                <option value="cledj">cledj</option>
+                <option value="clebQ">clebQ</option>
+                <option value="cleju1">cleju1</option>
+                <option value="cleju3">cleju3</option>
+                <option value="cleQt1">cleQt1</option>
+                <option value="cleQt3">cleQt3</option>
+            </select>
+            </p>
+
+            <p>
+            <span id="eft-term"></span>
+            </p>
+
+        <h2>Result vertices</h2>
+
+        <div id="feynman-container" style="display: flex; justify-content: center;">
+            <p>Please make sure to select both EFT parameters and a particle.</p>
+        </div>
+
+        <div id="footer">Made with &#127867; by Stephen Nicholas Swatman and
+        Rahul Balasubramanian using <a
+        href="https://photino.github.io/jquery-feyn/">jQuery.Feyn</a> and <a
+        href="https://smeftsim.github.io/">SMEFTsim</a>.</div>
+
+        <script>
+            var term_map = {
+                  "cbGRe": "Q_{bG} = (\\bar Q \\sigma^{\\mu\\nu} T^a b)  H G_{\\mu\\nu}^a ", 
+                  "cleju1Im": "Q_{le} = (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "ctd1": "Q_{td}^{(1)} = (\\bar t \\gamma_\\mu t)(\\bar d \\gamma^\\mu d) ", 
+                  "cuG": "Q_{uG} = (\\bar q\\, Y_u^\\dagger\\, \\sigma^{\\mu\\nu} T^a u) \\tilde H G_{\\mu\\nu}^a ", 
+                  "ctHH": "Q_{tH} = (H^\\dagger H) (\\bar Q  \\tilde Ht) ", 
+                  "cHBtil": "Q_{HB} =   H^\\dagger H\\, B_{\\mu\\nu} B^{\\mu\\nu} ", 
+                  "cQQ8": "Q_{QQ}^{(8)} = (\\bar Q T^a\\gamma_\\mu Q)(\\bar Q T^a\\gamma^\\mu Q) ", 
+                  "cbHRe": "Q_{bH} = (H^\\dagger H) (\\bar Q H b) ", 
+                  "cutbd8Im": "Q_{utbd}^{(8)} = (Y_uY_d^\\dagger)_{pr}(\\bar u_p T^a\\gamma_\\mu t)(\\bar b T^a\\gamma^\\mu d_r)", 
+                  "cQQ1": "Q_{QQ}^{(1)} = (\\bar Q \\gamma_\\mu Q)(\\bar Q \\gamma^\\mu Q) ", 
+                  "cuH": "Q_{uH} =  (H^\\dagger H)(\\bar q_p u_r \\widetilde H )", 
+                  "cll": "Q_{ll} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar l_s\\gamma^\\mu l_t) ", 
+                  "cledj": "Q_{le} = (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "ctb8": "Q_{tb}^{(8)} = (\\bar t T^a\\gamma_\\mu t)(\\bar b T^a\\gamma^\\mu b) ", 
+                  "cdB": "Q_{dB} = (\\bar q\\, Y_d^\\dagger\\, \\sigma^{\\mu\\nu} d) H B_{\\mu\\nu} ", 
+                  "cld": "Q_{ld} = (\\bar l_p \\gamma_\\mu l_r)(\\bar d \\gamma^\\mu d) ", 
+                  "cle": "Q_{le} = (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "ctb1": "Q_{tb}^{(1)} = (\\bar t \\gamma_\\mu t)(\\bar b \\gamma^\\mu b) ", 
+                  "cdH": "Q_{dH} = (H^\\dagger H) (\\bar q\\, Y_d^\\dagger\\, d H) ", 
+                  "ctWIm": "Q_{tW} = (\\bar Q \\sigma^{\\mu\\nu} t) \\sigma^i \\tilde H W_{\\mu\\nu}^i ", 
+                  "clu": "Q_{lu} = (\\bar l_p \\gamma_\\mu l_r)(\\bar u \\gamma^\\mu u) ", 
+                  "cQtQb1Re": "Q_{QtQb}^{(1)} =  (\\bar Q^j \\, t) \\e_{jk} (\\bar Q^k\\, b) ", 
+                  "cee": "Q_{ee} = (\\bar e_p \\gamma_\\mu e_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "ced": "Q_{ed} = (\\bar e_p \\gamma_\\mu e_r)(\\bar d \\gamma^\\mu d) ", 
+                  "cQd1": "Q_{Qd}^{(1)} = (\\bar Q \\gamma_\\mu Q)(\\bar d \\gamma^\\mu d) ", 
+                  "ceu": "Q_{eu} = (\\bar e_p \\gamma_\\mu e_r)(\\bar u \\gamma^\\mu u) ", 
+                  "cQd8": "Q_{Qd}^{(8)} = (\\bar Q T^a\\gamma_\\mu Q)(\\bar d T^a\\gamma^\\mu d) ", 
+                  "cQtQb1Im": "Q_{QtQb}^{(1)} =  (\\bar Q^j \\, t) \\e_{jk} (\\bar Q^k\\, b) ", 
+                  "cHQ3": "Q_H =  (H^\\dagger H)^3", 
+                  "cHQ1": "Q_H =  (H^\\dagger H)^3", 
+                  "ceB": "Q_{eB} = (\\bar l_p \\sigma^{\\mu\\nu} e_r) H B_{\\mu\\nu} ", 
+                  "cHtb": "Q_{Ht} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar t \\gamma^\\mu t) ", 
+                  "ceH": "Q_{eH} = (H^\\dagger H) (\\bar l_p e_r H) ", 
+                  "cleQt1Im": "Q_{leQt}^{(1)} =  (\\bar l_p^j e_r) \\e_{jk} (\\bar Q^k \\, t) ", 
+                  "cleju3Re": "Q_{le} = (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "cuGIm": "Q_{uG} = (\\bar q\\, Y_u^\\dagger\\, \\sigma^{\\mu\\nu} T^a u) \\tilde H G_{\\mu\\nu}^a ", 
+                  "cdHRe": "Q_{dH} =  (H^\\dagger H)(\\bar q_p d_r H)", 
+                  "cuB": "Q_{uB} = (\\bar q\\, Y_u^\\dagger\\, \\sigma^{\\mu\\nu} u) \\tilde H B_{\\mu\\nu} ", 
+                  "clebQ": "Q_{lebQ} = (\\bar l_p^j e_r)(\\bar b Q_{j}) ", 
+                  "cutbd1Im": "Q_{utbd}^{(1)} = (Y_uY_d^\\dagger)_{pr}(\\bar u_p \\gamma_\\mu t)(\\bar b\\gamma^\\mu d_r) ", 
+                  "cHWBtil": "Q_{HW} =  H^\\dagger H\\, W^i_{\\mu\\nu} W^{I\\mu\\nu} ", 
+                  "ctGIm": "Q_{tG} = (\\bar Q \\sigma^{\\mu\\nu} T^a t) \\tilde H G_{\\mu\\nu}^a ", 
+                  "ctGRe": "Q_{tG} = (\\bar Q \\sigma^{\\mu\\nu} T^a t) \\tilde H G_{\\mu\\nu}^a ", 
+                  "cHGtil": "Q_{HG} =  H^\\dagger H\\, G^a_{\\mu\\nu} G^{a\\mu\\nu} ", 
+                  "cutbd8": "Q_{utbd}^{(8)} = (Y_uY_d^\\dagger)_{pr}(\\bar u_p T^a\\gamma_\\mu t)(\\bar b T^a\\gamma^\\mu d_r)", 
+                  "cuu1": "Q_{uu}^{(1)} = (\\bar u \\gamma_\\mu u)(\\bar u \\gamma^\\mu u) ", 
+                  "ceWIm": "Q_{eW} = (\\bar l_p \\sigma^{\\mu\\nu} e_r) \\sigma^i H W_{\\mu\\nu}^i ", 
+                  "cHWtil": "Q_{HW} =  H^\\dagger H\\, W^i_{\\mu\\nu} W^{I\\mu\\nu} ", 
+                  "cHWB": "Q_{HW} =  H^\\dagger H\\, W^i_{\\mu\\nu} W^{I\\mu\\nu} ", 
+                  "cHl3": "Q_H =  (H^\\dagger H)^3", 
+                  "cuu8": "Q_{uu}^{(8)} = (\\bar u T^a\\gamma_\\mu u)(\\bar u T^a\\gamma^\\mu u) ", 
+                  "cuGRe": "Q_{uG} =  (\\bar q_p \\sigma^{\\mu\\nu} T^a u_r) \\widetilde H \\, G_{\\mu\\nu}^a ", 
+                  "cdWIm": "Q_{dW} = (\\bar q\\, Y_d^\\dagger\\, \\sigma^{\\mu\\nu} d) \\sigma^i H W_{\\mu\\nu}^i ", 
+                  "cud1": "Q_{ud}^{(1)} = (\\bar u \\gamma_\\mu u)(\\bar d \\gamma^\\mu d) ", 
+                  "cdWRe": "Q_{dW} = (\\bar q\\, Y_d^\\dagger\\, \\sigma^{\\mu\\nu} d) \\sigma^i H W_{\\mu\\nu}^i ", 
+                  "cQt8": "Q_{Qt}^{(8)} = (\\bar Q T^a\\gamma_\\mu Q)(\\bar t T^a\\gamma^\\mu t) ", 
+                  "cud8": "Q_{ud}^{(8)} = (\\bar u T^a\\gamma_\\mu u)(\\bar d T^a\\gamma^\\mu d) ", 
+                  "cleju3": "Q_{le} = (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "cbWRe": "Q_{bW} = (\\bar Q \\sigma^{\\mu\\nu} b) \\sigma^i H W_{\\mu\\nu}^i ", 
+                  "cuW": "Q_{uW} = (\\bar q\\, Y_u^\\dagger\\, \\sigma^{\\mu\\nu} u) \\sigma^i \\tilde H W_{\\mu\\nu}^i ", 
+                  "cHbox": "Q_{Hb} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar b \\gamma^\\mu b) ", 
+                  "cbHIm": "Q_{bH} = (H^\\dagger H) (\\bar Q H b) ", 
+                  "ceBRe": "Q_{eB} = (\\bar l_p \\sigma^{\\mu\\nu} e_r) H B_{\\mu\\nu} ", 
+                  "ctW": "Q_{tW} = (\\bar Q \\sigma^{\\mu\\nu} t) \\sigma^i \\tilde H W_{\\mu\\nu}^i ", 
+                  "cledjIm": "Q_{le} = (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "cuBRe": "Q_{uB} =  (\\bar q_p \\sigma^{\\mu\\nu} u_r) \\widetilde H \\, B_{\\mu\\nu} ", 
+                  "cbBRe": "Q_{bB} = (\\bar Q \\sigma^{\\mu\\nu} b) H B_{\\mu\\nu} ", 
+                  "cdGIm": "Q_{dG} = (\\bar q\\, Y_d^\\dagger\\, \\sigma^{\\mu\\nu} T^a d) H G_{\\mu\\nu}^a ", 
+                  "ctWRe": "Q_{tW} = (\\bar Q \\sigma^{\\mu\\nu} t) \\sigma^i \\tilde H W_{\\mu\\nu}^i ", 
+                  "cHudIm": "Q_{Hu} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar u \\gamma^\\mu u) ", 
+                  "ctt": "Q_{tt} = (\\bar t\\gamma_\\mu t)(\\bar t\\gamma^\\mu t) ", 
+                  "cQu1": "Q_{Qu}^{(1)} = (\\bar Q \\gamma_\\mu Q)(\\bar u \\gamma^\\mu u) ", 
+                  "cleju1": "Q_{le} = (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "cQu8": "Q_{Qu}^{(8)} = (\\bar Q T^a\\gamma_\\mu Q)(\\bar u T^a\\gamma^\\mu u) ", 
+                  "cuWRe": "Q_{uW} =  (\\bar q_p \\sigma^{\\mu\\nu} u_r) \\sigma^i \\widetilde H \\, W_{\\mu\\nu}^i ", 
+                  "cuHRe": "Q_{uH} =  (H^\\dagger H)(\\bar q_p u_r \\widetilde H )", 
+                  "ctG": "Q_{tG} = (\\bar Q \\sigma^{\\mu\\nu} T^a t) \\tilde H G_{\\mu\\nu}^a ", 
+                  "cdd8": "Q_{dd}^{(8)} = (\\bar d T^a\\gamma_\\mu d)(\\bar d T^a\\gamma^\\mu d) ", 
+                  "cQtQb8Im": "Q_{QtQb}^{(8)} =  (\\bar Q^j \\, T^a t) \\e_{jk} (\\bar Q^k\\,T^a b) ", 
+                  "cdd1": "Q_{dd}^{(1)} = (\\bar d \\gamma_\\mu d)(\\bar d \\gamma^\\mu d) ", 
+                  "cuHIm": "Q_{uH} =  (H^\\dagger H)(\\bar q_p u_r \\widetilde H )", 
+                  "ctB": "Q_{tB} = (\\bar Q \\sigma^{\\mu\\nu} t)  \\tilde H B_{\\mu\\nu} ", 
+                  "cuBIm": "Q_{uB} = (\\bar q\\, Y_u^\\dagger\\, \\sigma^{\\mu\\nu} u) \\tilde H B_{\\mu\\nu} ", 
+                  "ctBIm": "Q_{tB} = (\\bar Q \\sigma^{\\mu\\nu} t)  \\tilde H B_{\\mu\\nu} ", 
+                  "ceHIm": "Q_{eH} = (H^\\dagger H) (\\bar l_p e_r H) ", 
+                  "cGtil": "Q_G =  f^{abc} G_\\mu^{a\\nu} G_\\nu^{b\\rho} G_\\rho^{c\\mu}  ", 
+                  "cutbd1": "Q_{utbd}^{(1)} = (Y_uY_d^\\dagger)_{pr}(\\bar u_p \\gamma_\\mu t)(\\bar b\\gamma^\\mu d_r) ", 
+                  "ctu1": "Q_{tu}^{(1)} = (\\bar t \\gamma_\\mu t)(\\bar u \\gamma^\\mu u) ", 
+                  "cHl1": "Q_H =  (H^\\dagger H)^3", 
+                  "cbGIm": "Q_{bG} = (\\bar Q \\sigma^{\\mu\\nu} T^a b)  H G_{\\mu\\nu}^a ", 
+                  "ctu8": "Q_{tu}^{(8)} = (\\bar t T^a\\gamma_\\mu t)(\\bar u T^a\\gamma^\\mu u) ", 
+                  "cll1": "Q_{ll} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar l_s\\gamma^\\mu l_t) ", 
+                  "cHtbIm": "Q_{Ht} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar t \\gamma^\\mu t) ", 
+                  "cQtQb8Re": "Q_{QtQb}^{(8)} =  (\\bar Q^j \\, T^a t) \\e_{jk} (\\bar Q^k\\,T^a b) ", 
+                  "cH": "Q_H =  (H^\\dagger H)^3", 
+                  "ceW": "Q_{eW} = (\\bar l_p \\sigma^{\\mu\\nu} e_r) \\sigma^i H W_{\\mu\\nu}^i ", 
+                  "cG": "Q_G =  f^{abc} G_\\mu^{a\\nu} G_\\nu^{b\\rho} G_\\rho^{c\\mu}  ", 
+                  "cQtQb1": "Q_{QtQb}^{(1)} =  (\\bar Q^j \\, t) \\e_{jk} (\\bar Q^k\\, b) ", 
+                  "cdW": "Q_{dW} = (\\bar q\\, Y_d^\\dagger\\, \\sigma^{\\mu\\nu} d) \\sigma^i H W_{\\mu\\nu}^i ", 
+                  "cHDD": "Q_{HD} =  \\ \\left(D^\\mu H^\\dagger  H\\right) \\left(H^\\dagger D_\\mu H\\right) ", 
+                  "cleju3Im": "Q_{le} = (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "cQtQb8": "Q_{QtQb}^{(8)} =  (\\bar Q^j \\, T^a t) \\e_{jk} (\\bar Q^k\\,T^a b) ", 
+                  "cW": "Q_W =  \\epsilon^{ijk} W_\\mu^{i\\nu} W_\\nu^{j\\rho} W_\\rho^{k\\mu} ", 
+                  "cHB": "Q_{HB} =   H^\\dagger H\\, B_{\\mu\\nu} B^{\\mu\\nu} ", 
+                  "ctHIm": "Q_{tH} = (H^\\dagger H) (\\bar Q  \\tilde Ht) ", 
+                  "cdBRe": "Q_{dB} = (\\bar q\\, Y_d^\\dagger\\, \\sigma^{\\mu\\nu} d) H B_{\\mu\\nu} ", 
+                  "cledjRe": "Q_{le} = (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "cdBIm": "Q_{dB} = (\\bar q\\, Y_d^\\dagger\\, \\sigma^{\\mu\\nu} d) H B_{\\mu\\nu} ", 
+                  "cleQt1": "Q_{leQt}^{(1)} =  (\\bar l_p^j e_r) \\e_{jk} (\\bar Q^k \\, t) ", 
+                  "cleQt3": "Q_{leQt}^{(3)} =  (\\bar l_p^j \\sigma_{\\mu\\nu} e_r) \\e_{jk} (\\bar Q^k  \\sigma^{\\mu\\nu} t)", 
+                  "cHud": "Q_{Hu} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar u \\gamma^\\mu u) ", 
+                  "cdHIm": "Q_{dH} = (H^\\dagger H) (\\bar q\\, Y_d^\\dagger\\, d H) ", 
+                  "cleQt3Im": "Q_{leQt}^{(3)} =  (\\bar l_p^j \\sigma_{\\mu\\nu} e_r) \\e_{jk} (\\bar Q^k  \\sigma^{\\mu\\nu} t)", 
+                  "ctBRe": "Q_{tB} = (\\bar Q \\sigma^{\\mu\\nu} t)  \\tilde H B_{\\mu\\nu} ", 
+                  "clebQRe": "Q_{lebQ} = (\\bar l_p^j e_r)(\\bar b Q_{j}) ", 
+                  "cdGRe": "Q_{dG} = (\\bar q\\, Y_d^\\dagger\\, \\sigma^{\\mu\\nu} T^a d) H G_{\\mu\\nu}^a ", 
+                  "cbWIm": "Q_{bW} = (\\bar Q \\sigma^{\\mu\\nu} b) \\sigma^i H W_{\\mu\\nu}^i ", 
+                  "clebQIm": "Q_{lebQ} = (\\bar l_p^j e_r)(\\bar b Q_{j}) ", 
+                  "cbb": "Q_{bb} = (\\bar b\\gamma_\\mu b)(\\bar b\\gamma^\\mu b) ", 
+                  "ctHRe": "Q_{tH} = (H^\\dagger H) (\\bar Q  \\tilde Ht) ", 
+                  "cHtbRe": "Q_{Ht} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar t \\gamma^\\mu t) ", 
+                  "cWtil": "Q_{\\widetilde W} =  \\e^{ijk} \\widetilde W_\\mu^{i\\nu} W_\\nu^{j\\rho} W_\\rho^{k\\mu} ", 
+                  "ceHRe": "Q_{eH} = (H^\\dagger H) (\\bar l_p e_r H) ", 
+                  "ctd8": "Q_{td}^{(8)} = (\\bar t T^a\\gamma_\\mu t)(\\bar d T^a\\gamma^\\mu d) ", 
+                  "cutbd1Re": "Q_{utbd}^{(1)} = (Y_uY_d^\\dagger)_{pr}(\\bar u_p \\gamma_\\mu t)(\\bar b\\gamma^\\mu d_r) ", 
+                  "cbH": "Q_{bH} = (H^\\dagger H) (\\bar Q H b) ", 
+                  "cHj3": "Q_H =  (H^\\dagger H)^3", 
+                  "cHj1": "Q_H =  (H^\\dagger H)^3", 
+                  "cbW": "Q_{bW} = (\\bar Q \\sigma^{\\mu\\nu} b) \\sigma^i H W_{\\mu\\nu}^i ", 
+                  "ceWRe": "Q_{eW} = (\\bar l_p \\sigma^{\\mu\\nu} e_r) \\sigma^i H W_{\\mu\\nu}^i ", 
+                  "cHudRe": "Q_{Hu} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar u \\gamma^\\mu u) ", 
+                  "cHd": "Q_{Hd} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar d \\gamma^\\mu d) ", 
+                  "cHe": "Q_{He} =(H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar e_p \\gamma^\\mu e_r) ", 
+                  "cQt1": "Q_{Qt}^{(1)} = (\\bar Q \\gamma_\\mu Q)(\\bar t \\gamma^\\mu t) ", 
+                  "cbBIm": "Q_{bB} = (\\bar Q \\sigma^{\\mu\\nu} b) H B_{\\mu\\nu} ", 
+                  "cQe": "Q_{Qe} = (\\bar Q \\gamma_\\mu Q)(\\bar e_p \\gamma^\\mu e_r) ", 
+                  "cHt": "Q_{Ht} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar t \\gamma^\\mu t) ", 
+                  "cHu": "Q_{Hu} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar u \\gamma^\\mu u) ", 
+                  "ceBIm": "Q_{eB} = (\\bar l_p \\sigma^{\\mu\\nu} e_r) H B_{\\mu\\nu} ", 
+                  "cdG": "Q_{dG} = (\\bar q\\, Y_d^\\dagger\\, \\sigma^{\\mu\\nu} T^a d) H G_{\\mu\\nu}^a ", 
+                  "cbG": "Q_{bG} = (\\bar Q \\sigma^{\\mu\\nu} T^a b)  H G_{\\mu\\nu}^a ", 
+                  "cQb8": "Q_{Qb}^{(8)} = (\\bar Q T^a\\gamma_\\mu Q)(\\bar b T^a\\gamma^\\mu b) ", 
+                  "cleQt3Re": "Q_{leQt}^{(3)} =  (\\bar l_p^j \\sigma_{\\mu\\nu} e_r) \\e_{jk} (\\bar Q^k  \\sigma^{\\mu\\nu} t)", 
+                  "cHG": "Q_{HG} =  H^\\dagger H\\, G^a_{\\mu\\nu} G^{a\\mu\\nu} ", 
+                  "cuWIm": "Q_{uW} = (\\bar q\\, Y_u^\\dagger\\, \\sigma^{\\mu\\nu} u) \\sigma^i \\tilde H W_{\\mu\\nu}^i ", 
+                  "cleju1Re": "Q_{le} = (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t) ", 
+                  "cQb1": "Q_{Qb}^{(1)} = (\\bar Q \\gamma_\\mu Q)(\\bar b \\gamma^\\mu b) ", 
+                  "cbBB": "Q_{bB} = (\\bar Q \\sigma^{\\mu\\nu} b) H B_{\\mu\\nu} ", 
+                  "cbd8": "Q_{bd}^{(8)} = (\\bar b T^a\\gamma_\\mu b)(\\bar d T^a\\gamma^\\mu d) ", 
+                  "cutbd8Re": "Q_{utbd}^{(8)} = (Y_uY_d^\\dagger)_{pr}(\\bar u_p T^a\\gamma_\\mu t)(\\bar b T^a\\gamma^\\mu d_r)", 
+                  "cHbq": "Q_{Hb} = (H^\\dagger i\\overleftrightarrow{D}_\\mu H) (\\bar b \\gamma^\\mu b) ", 
+                  "cHW": "Q_{HW} =  H^\\dagger H\\, W^i_{\\mu\\nu} W^{I\\mu\\nu} ", 
+                  "cleQt1Re": "Q_{leQt}^{(1)} =  (\\bar l_p^j e_r) \\e_{jk} (\\bar Q^k \\, t) ", 
+                  "cbd1": "Q_{bd}^{(1)} = (\\bar b \\gamma_\\mu b)(\\bar d \\gamma^\\mu d) "
+            }
+
+            function prettyparticle(p) {
+                if(p == "a") {
+                    return "γ";
+                } else if(p == "W+") {
+                    return "W&#8314;";
+                } else if(p == "W-") {
+                    return "W&#8315;";
+                } else if(p == "ve") {
+                    return "νe";
+                } else if(p == "ve~") {
+                    return "νe~";
+                } else if(p == "vm") {
+                    return "νμ";
+                } else if(p == "vm~") {
+                    return "νμ~";
+                } else if(p == "vt") {
+                    return "ντ";
+                } else if(p == "vt~") {
+                    return "ντ~";
+                } else if(p == "e-") {
+                    return "e&#8315;";
+                } else if(p == "e+") {
+                    return "e&#8314;";
+                } else if(p == "mu-") {
+                    return "μ&#8315;";
+                } else if(p == "mu+") {
+                    return "μ&#8314;";
+                } else if(p == "ta-") {
+                    return "τ&#8315;";
+                } else if(p == "ta+") {
+                    return "τ&#8314;";
+                } else {
+                    return p;
+                }
+            }
+
+            function render() {
+                var eft = $('#select-eft').val();
+                var par = $('#particle-selection').val();
+
+                if (eft) {
+                    // Rahul: Put your own text here.
+                    $("#eft-term").text("$" + (eft in term_map ? term_map[eft] : "\\sum_{i=0}^n \\mathrm{" + eft + "}") + "$");
+                    MathJax.typeset();
+                }
+
+                if (eft && par) {
+                    var data = vertices_topU3l[eft][par];
+
+                    $('#feynman-container').empty();
+
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; ++i) {
+                            $('#feynman-container').append("<div class=\"feynman-diagram\" id=\"container" + i + "\"></div>");
+
+                            var arr = data[i];
+
+                            console.log(arr);
+
+                            var diag = {
+                                incoming: {},
+                                vertex: {v: '90, 90'},
+                                scalar: {line: ''},
+                                photon: {line: ''},
+                                fermion: {line: '', arrow: false},
+                                gluon: {line: '', clockwise: true},
+                                label: {},
+                                symbol: {s1: ['78,90', 0, 'blob', 12, 12]}
+                            }
+
+                            for (var j = 0; j < arr.length; ++j) {
+                                t = j * (2 * Math.PI) / arr.length;
+                                p = arr[j];
+
+                                if (p == "a" || p == "Z" || p == "W+" || p == "W-") {
+                                    target = "photon";
+                                } else if (p == "g") {
+                                    target = "gluon";
+                                } else if (p == "H") {
+                                    target = "scalar";
+                                } else {
+                                    target = "fermion";
+                                }
+
+                                diag.vertex["v" + j] = (Math.cos(t) * 12 + 90) + "," + (Math.sin(t) * 12 + 90);
+                                diag.incoming["i" + j] = (Math.cos(t) * 90 + 90) + "," + (Math.sin(t) * 90 + 90);
+                                diag[target].line += "v" + j + "-i" + j + ",";
+                                diag.label["t" + j] = [(Math.cos(t - 0.175) * 80 + 90) + "," + (Math.sin(t - 0.175) * 80 + 90 + 5), prettyparticle(p)];
+                            }
+
+
+                            $('#container' + i).feyn(diag);
+                        }
+
+                    } else {
+                        $('#feynman-container').append("<p>This combination did not produce any vertices.</p>");
+                    }
+                }
+            }
+
+            $('.particle').click(function(){
+                $('#particle-select').find('.particle').removeClass('selected');
+                $(this).addClass('selected');
+                var val = $(this).attr('data-value');
+                $('#particle-selection').val(val);
+                $('#particle-selection').change();
+            });
+
+            $('#particle-selection').on('change', render);
+            $('#select-eft').on('change', render);
+
+            $("document").ready(function() {
+                $("#select-eft").selectize({
+                    maxItems: null
+              });
+            });
+
+            $("document").ready(function() {
+                $("#select-model").selectize({
+              });
+            });
+
+            $("document").ready(function() {
+                $("#select-flavour").selectize({
+              });
+            });
+          </script>
+          <script>
+            MathJax = {
+              tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+              }
+            };
+            </script>
+            <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+            </script>
+    </body>
+</html>

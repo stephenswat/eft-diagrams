@@ -1,0 +1,2940 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script src="https://photino.github.io/jquery-feyn/js/jquery.feyn-1.0.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/latest.min.js" integrity="sha512-/kYnJy6+zL7+sfYX71amPypBreoBzZgp0ujTqNeFuDfLL81iqrpS8T72Q+eFL9cl47CeKW+SRabvI1XkHLtZdQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.default.css" integrity="sha512-J0JTRxsBEJ99DP4GamwciDi8VjALSrZneBYrv98BhqHPvlQP6gLbmmuddlYXHDB8hyLtefOIJFlpZBhksCtK8g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="data_general.js"></script>
+
+        <title>EFT diagrams</title>
+
+        <style>
+            html {
+                background-color: #eee;
+            }
+
+            body {
+                margin: 0;
+                background-color: white;
+                font-family: 'Source Sans 3', sans-serif;
+                overflow-y: scroll;
+                font-weight: 300;
+                line-height: 150%;
+                padding: 2rem;
+                font-size: 1.2rem;
+                color: #000;
+            }
+
+            @media(min-width: 720px) {
+                body {
+                    margin: 0 auto;
+                    margin-top: 2rem;
+                    margin-bottom: 2rem;
+                    /* border: 1pt solid #777; */
+                    box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19) !important;
+                    width: 600px;
+                }
+            }
+
+            #particle-select {
+                margin: 0 auto;
+                width: 100%;
+                font-size: 1.5rem;
+            }
+
+            #particle-select tbody tr {
+                height: 60px;
+            }
+
+            #particle-select tbody tr td {
+                width: 12.5%;
+            }
+
+            .anti {
+                text-decoration: overline;
+            }
+
+            .particle {
+                border-radius: 8px;
+                text-align: center;
+                cursor: pointer;
+            }
+
+            .quark {
+                border: 2pt solid hsl(320, 30%, 40%);
+            }
+
+            .quark:hover {
+                background-color: hsl(320, 30%, 80%);
+            }
+
+            .quark.selected {
+                background-color: hsl(320, 30%, 60%);
+            }
+
+            .lepton {
+                border: 2pt solid hsl(160, 30%, 40%);
+            }
+
+            .lepton:hover {
+                background-color: hsl(160, 30%, 80%);
+            }
+
+            .lepton.selected {
+                background-color: hsl(160, 30%, 60%);
+            }
+
+            .gauge-boson {
+                border: 2pt solid hsl(0, 65%, 40%);
+            }
+
+            .gauge-boson:hover {
+                background-color: hsl(0, 65%, 80%);
+            }
+
+            .gauge-boson.selected {
+                background-color: hsl(0, 65%, 60%);
+            }
+
+            .scalar-boson {
+                border: 2pt solid hsl(43, 100%, 40%);
+            }
+
+            .scalar-boson:hover {
+                background-color: hsl(43, 100%, 80%);
+            }
+
+            .scalar-boson.selected {
+                background-color: hsl(43, 100%, 60%);
+            }
+
+            #feynman-container {
+                flex-wrap: wrap;
+            }
+
+            .feynman-diagram {
+                flex: 0 0 180px;
+                height: 180px;
+                margin-bottom: 1rem;
+            }
+
+            #footer {
+                font-size: small;
+                color: gray;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Visualising EFT Feynman Vertices</h1>
+
+        <p>This page generates Feynman vertices of particles interacting in
+        an effective theory. Currently available models are SMEFTsim and SMEFTatNLO.</p>
+
+        <h2>EFT Model</h2>
+        
+        <p>Please select your EFT (currently SMEFTsim U35 by default):</p>
+        
+        <select id="select-model">
+            <option value="SMEFTsim">SMEFTsim</option>
+            <option value="SMEFTatNLO">SMEFTatNLO</option>
+        </select>
+
+        <h2>Flavour symmetry</h2>
+
+        <p>Please select your flavour symmetry (currently unused):</p>
+
+        <select id="select-flavour">
+            <option>Maximal flavour violation</option>
+            <option>U(3)5</option>
+            <option>General</option>
+            <option>TopU(3)l</option>
+            <option>Top</option>
+        </select>
+
+        <h2>Particle</h2>
+
+        <p>Please select the particle of your choice:</p>
+
+        <input id="particle-selection" style="display: none" />
+
+        <table id="particle-select">
+            <tbody>
+              <tr>
+                <td class="particle quark" data-value="u">u</td>
+                <td class="particle quark" data-value="c">c</td>
+                <td class="particle quark" data-value="t">t</td>
+                <td class="particle quark" data-value="u~"><span class="anti">u</span></td>
+                <td class="particle quark" data-value="c~"><span class="anti">c</span></td>
+                <td class="particle quark" data-value="t~"><span class="anti">t</span></td>
+                <td class="particle gauge-boson" data-value="g">g</td>
+                <td class="particle scalar-boson" data-value="H">H</td>
+              </tr>
+              <tr>
+                <td class="particle quark" data-value="d">d</td>
+                <td class="particle quark" data-value="s">s</td>
+                <td class="particle quark" data-value="b">b</td>
+                <td class="particle quark" data-value="d~"><span class="anti">d</span></td>
+                <td class="particle quark" data-value="s~"><span class="anti">s</span></td>
+                <td class="particle quark" data-value="b~"><span class="anti">b</span></td>
+                <td class="particle gauge-boson" data-value="a">γ</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="particle lepton" data-value="e-">e<sup>-</sup></td>
+                <td class="particle lepton" data-value="mu-">μ<sup>-</sup></td>
+                <td class="particle lepton" data-value="ta-">τ<sup>-</sup></td>
+                <td class="particle lepton" data-value="e+">e<sup>+</sup></td>
+                <td class="particle lepton" data-value="mu+">μ<sup>+</sup></td>
+                <td class="particle lepton" data-value="ta+">τ<sup>+</sup></td>
+                <td class="particle gauge-boson" data-value="Z">Z</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="particle lepton" data-value="ve">ν<sub>e</sub></td>
+                <td class="particle lepton" data-value="vm">ν<sub>μ</sub></td>
+                <td class="particle lepton" data-value="vt">ν<sub>τ</sub></td>
+                <td class="particle lepton" data-value="ve~"><span class="anti">ν</span><sub>e</sub></td>
+                <td class="particle lepton" data-value="vm~"><span class="anti">ν</span><sub>μ</sub></td>
+                <td class="particle lepton" data-value="vt~"><span class="anti">ν</span><sub>τ</sub></td>
+                <td class="particle gauge-boson" data-value="W+">W<sup>+</sup></td>
+                <td class="particle gauge-boson" data-value="W-">W<sup>-</sup></td>
+              </tr>
+            </tbody>
+            </table>
+
+            <h2>EFT parameters</h2>
+        
+            <p>Please select your EFT parameters from the following options:</p>
+    
+            <p>
+            <select id="select-eft">
+                <option value="cG">cG</option>
+                <option value="cW">cW</option>
+                <option value="cH">cH</option>
+                <option value="cHbox">cHbox</option>
+                <option value="cHDD">cHDD</option>
+                <option value="cHG">cHG</option>
+                <option value="cHW">cHW</option>
+                <option value="cHB">cHB</option>
+                <option value="cHWB">cHWB</option>
+                <option value="ceHRe11">ceHRe11</option>
+                <option value="ceHRe22">ceHRe22</option>
+                <option value="ceHRe33">ceHRe33</option>
+                <option value="ceHRe12">ceHRe12</option>
+                <option value="ceHRe13">ceHRe13</option>
+                <option value="ceHRe23">ceHRe23</option>
+                <option value="ceHRe21">ceHRe21</option>
+                <option value="ceHRe31">ceHRe31</option>
+                <option value="ceHRe32">ceHRe32</option>
+                <option value="cuHRe11">cuHRe11</option>
+                <option value="cuHRe22">cuHRe22</option>
+                <option value="cuHRe33">cuHRe33</option>
+                <option value="cuHRe12">cuHRe12</option>
+                <option value="cuHRe13">cuHRe13</option>
+                <option value="cuHRe23">cuHRe23</option>
+                <option value="cuHRe21">cuHRe21</option>
+                <option value="cuHRe31">cuHRe31</option>
+                <option value="cuHRe32">cuHRe32</option>
+                <option value="cdHRe11">cdHRe11</option>
+                <option value="cdHRe22">cdHRe22</option>
+                <option value="cdHRe33">cdHRe33</option>
+                <option value="cdHRe12">cdHRe12</option>
+                <option value="cdHRe13">cdHRe13</option>
+                <option value="cdHRe23">cdHRe23</option>
+                <option value="cdHRe21">cdHRe21</option>
+                <option value="cdHRe31">cdHRe31</option>
+                <option value="cdHRe32">cdHRe32</option>
+                <option value="ceWRe11">ceWRe11</option>
+                <option value="ceWRe22">ceWRe22</option>
+                <option value="ceWRe33">ceWRe33</option>
+                <option value="ceWRe12">ceWRe12</option>
+                <option value="ceWRe13">ceWRe13</option>
+                <option value="ceWRe23">ceWRe23</option>
+                <option value="ceWRe21">ceWRe21</option>
+                <option value="ceWRe31">ceWRe31</option>
+                <option value="ceWRe32">ceWRe32</option>
+                <option value="ceBRe11">ceBRe11</option>
+                <option value="ceBRe22">ceBRe22</option>
+                <option value="ceBRe33">ceBRe33</option>
+                <option value="ceBRe12">ceBRe12</option>
+                <option value="ceBRe13">ceBRe13</option>
+                <option value="ceBRe23">ceBRe23</option>
+                <option value="ceBRe21">ceBRe21</option>
+                <option value="ceBRe31">ceBRe31</option>
+                <option value="ceBRe32">ceBRe32</option>
+                <option value="cuGRe11">cuGRe11</option>
+                <option value="cuGRe22">cuGRe22</option>
+                <option value="cuGRe33">cuGRe33</option>
+                <option value="cuGRe12">cuGRe12</option>
+                <option value="cuGRe13">cuGRe13</option>
+                <option value="cuGRe23">cuGRe23</option>
+                <option value="cuGRe21">cuGRe21</option>
+                <option value="cuGRe31">cuGRe31</option>
+                <option value="cuGRe32">cuGRe32</option>
+                <option value="cuWRe11">cuWRe11</option>
+                <option value="cuWRe22">cuWRe22</option>
+                <option value="cuWRe33">cuWRe33</option>
+                <option value="cuWRe12">cuWRe12</option>
+                <option value="cuWRe13">cuWRe13</option>
+                <option value="cuWRe23">cuWRe23</option>
+                <option value="cuWRe21">cuWRe21</option>
+                <option value="cuWRe31">cuWRe31</option>
+                <option value="cuWRe32">cuWRe32</option>
+                <option value="cuBRe11">cuBRe11</option>
+                <option value="cuBRe22">cuBRe22</option>
+                <option value="cuBRe33">cuBRe33</option>
+                <option value="cuBRe12">cuBRe12</option>
+                <option value="cuBRe13">cuBRe13</option>
+                <option value="cuBRe23">cuBRe23</option>
+                <option value="cuBRe21">cuBRe21</option>
+                <option value="cuBRe31">cuBRe31</option>
+                <option value="cuBRe32">cuBRe32</option>
+                <option value="cdGRe11">cdGRe11</option>
+                <option value="cdGRe22">cdGRe22</option>
+                <option value="cdGRe33">cdGRe33</option>
+                <option value="cdGRe12">cdGRe12</option>
+                <option value="cdGRe13">cdGRe13</option>
+                <option value="cdGRe23">cdGRe23</option>
+                <option value="cdGRe21">cdGRe21</option>
+                <option value="cdGRe31">cdGRe31</option>
+                <option value="cdGRe32">cdGRe32</option>
+                <option value="cdWRe11">cdWRe11</option>
+                <option value="cdWRe22">cdWRe22</option>
+                <option value="cdWRe33">cdWRe33</option>
+                <option value="cdWRe12">cdWRe12</option>
+                <option value="cdWRe13">cdWRe13</option>
+                <option value="cdWRe23">cdWRe23</option>
+                <option value="cdWRe21">cdWRe21</option>
+                <option value="cdWRe31">cdWRe31</option>
+                <option value="cdWRe32">cdWRe32</option>
+                <option value="cdBRe11">cdBRe11</option>
+                <option value="cdBRe22">cdBRe22</option>
+                <option value="cdBRe33">cdBRe33</option>
+                <option value="cdBRe12">cdBRe12</option>
+                <option value="cdBRe13">cdBRe13</option>
+                <option value="cdBRe23">cdBRe23</option>
+                <option value="cdBRe21">cdBRe21</option>
+                <option value="cdBRe31">cdBRe31</option>
+                <option value="cdBRe32">cdBRe32</option>
+                <option value="cHl1Re11">cHl1Re11</option>
+                <option value="cHl1Re12">cHl1Re12</option>
+                <option value="cHl1Re13">cHl1Re13</option>
+                <option value="cHl1Re22">cHl1Re22</option>
+                <option value="cHl1Re23">cHl1Re23</option>
+                <option value="cHl1Re33">cHl1Re33</option>
+                <option value="cHl3Re11">cHl3Re11</option>
+                <option value="cHl3Re12">cHl3Re12</option>
+                <option value="cHl3Re13">cHl3Re13</option>
+                <option value="cHl3Re22">cHl3Re22</option>
+                <option value="cHl3Re23">cHl3Re23</option>
+                <option value="cHl3Re33">cHl3Re33</option>
+                <option value="cHq1Re11">cHq1Re11</option>
+                <option value="cHq1Re12">cHq1Re12</option>
+                <option value="cHq1Re13">cHq1Re13</option>
+                <option value="cHq1Re22">cHq1Re22</option>
+                <option value="cHq1Re23">cHq1Re23</option>
+                <option value="cHq1Re33">cHq1Re33</option>
+                <option value="cHq3Re11">cHq3Re11</option>
+                <option value="cHq3Re12">cHq3Re12</option>
+                <option value="cHq3Re13">cHq3Re13</option>
+                <option value="cHq3Re22">cHq3Re22</option>
+                <option value="cHq3Re23">cHq3Re23</option>
+                <option value="cHq3Re33">cHq3Re33</option>
+                <option value="cHeRe11">cHeRe11</option>
+                <option value="cHeRe12">cHeRe12</option>
+                <option value="cHeRe13">cHeRe13</option>
+                <option value="cHeRe22">cHeRe22</option>
+                <option value="cHeRe23">cHeRe23</option>
+                <option value="cHeRe33">cHeRe33</option>
+                <option value="cHuRe11">cHuRe11</option>
+                <option value="cHuRe12">cHuRe12</option>
+                <option value="cHuRe13">cHuRe13</option>
+                <option value="cHuRe22">cHuRe22</option>
+                <option value="cHuRe23">cHuRe23</option>
+                <option value="cHuRe33">cHuRe33</option>
+                <option value="cHdRe11">cHdRe11</option>
+                <option value="cHdRe12">cHdRe12</option>
+                <option value="cHdRe13">cHdRe13</option>
+                <option value="cHdRe22">cHdRe22</option>
+                <option value="cHdRe23">cHdRe23</option>
+                <option value="cHdRe33">cHdRe33</option>
+                <option value="cHudRe11">cHudRe11</option>
+                <option value="cHudRe22">cHudRe22</option>
+                <option value="cHudRe33">cHudRe33</option>
+                <option value="cHudRe12">cHudRe12</option>
+                <option value="cHudRe13">cHudRe13</option>
+                <option value="cHudRe23">cHudRe23</option>
+                <option value="cHudRe21">cHudRe21</option>
+                <option value="cHudRe31">cHudRe31</option>
+                <option value="cHudRe32">cHudRe32</option>
+                <option value="cllRe1111">cllRe1111</option>
+                <option value="cllRe1122">cllRe1122</option>
+                <option value="cllRe1221">cllRe1221</option>
+                <option value="cllRe1133">cllRe1133</option>
+                <option value="cllRe1331">cllRe1331</option>
+                <option value="cllRe2222">cllRe2222</option>
+                <option value="cllRe2233">cllRe2233</option>
+                <option value="cllRe2332">cllRe2332</option>
+                <option value="cllRe3333">cllRe3333</option>
+                <option value="cllRe1112">cllRe1112</option>
+                <option value="cllRe1113">cllRe1113</option>
+                <option value="cllRe1123">cllRe1123</option>
+                <option value="cllRe1212">cllRe1212</option>
+                <option value="cllRe1213">cllRe1213</option>
+                <option value="cllRe1231">cllRe1231</option>
+                <option value="cllRe1222">cllRe1222</option>
+                <option value="cllRe1223">cllRe1223</option>
+                <option value="cllRe1232">cllRe1232</option>
+                <option value="cllRe1233">cllRe1233</option>
+                <option value="cllRe1313">cllRe1313</option>
+                <option value="cllRe1322">cllRe1322</option>
+                <option value="cllRe1332">cllRe1332</option>
+                <option value="cllRe1323">cllRe1323</option>
+                <option value="cllRe1333">cllRe1333</option>
+                <option value="cllRe2223">cllRe2223</option>
+                <option value="cllRe2323">cllRe2323</option>
+                <option value="cllRe3323">cllRe3323</option>
+                <option value="cqq1Re1111">cqq1Re1111</option>
+                <option value="cqq1Re1122">cqq1Re1122</option>
+                <option value="cqq1Re1221">cqq1Re1221</option>
+                <option value="cqq1Re1133">cqq1Re1133</option>
+                <option value="cqq1Re1331">cqq1Re1331</option>
+                <option value="cqq1Re2222">cqq1Re2222</option>
+                <option value="cqq1Re2233">cqq1Re2233</option>
+                <option value="cqq1Re2332">cqq1Re2332</option>
+                <option value="cqq1Re3333">cqq1Re3333</option>
+                <option value="cqq1Re1112">cqq1Re1112</option>
+                <option value="cqq1Re1113">cqq1Re1113</option>
+                <option value="cqq1Re1123">cqq1Re1123</option>
+                <option value="cqq1Re1212">cqq1Re1212</option>
+                <option value="cqq1Re1213">cqq1Re1213</option>
+                <option value="cqq1Re1231">cqq1Re1231</option>
+                <option value="cqq1Re1222">cqq1Re1222</option>
+                <option value="cqq1Re1223">cqq1Re1223</option>
+                <option value="cqq1Re1232">cqq1Re1232</option>
+                <option value="cqq1Re1233">cqq1Re1233</option>
+                <option value="cqq1Re1313">cqq1Re1313</option>
+                <option value="cqq1Re1322">cqq1Re1322</option>
+                <option value="cqq1Re1332">cqq1Re1332</option>
+                <option value="cqq1Re1323">cqq1Re1323</option>
+                <option value="cqq1Re1333">cqq1Re1333</option>
+                <option value="cqq1Re2223">cqq1Re2223</option>
+                <option value="cqq1Re2323">cqq1Re2323</option>
+                <option value="cqq1Re3323">cqq1Re3323</option>
+                <option value="cqq3Re1111">cqq3Re1111</option>
+                <option value="cqq3Re1122">cqq3Re1122</option>
+                <option value="cqq3Re1221">cqq3Re1221</option>
+                <option value="cqq3Re1133">cqq3Re1133</option>
+                <option value="cqq3Re1331">cqq3Re1331</option>
+                <option value="cqq3Re2222">cqq3Re2222</option>
+                <option value="cqq3Re2233">cqq3Re2233</option>
+                <option value="cqq3Re2332">cqq3Re2332</option>
+                <option value="cqq3Re3333">cqq3Re3333</option>
+                <option value="cqq3Re1112">cqq3Re1112</option>
+                <option value="cqq3Re1113">cqq3Re1113</option>
+                <option value="cqq3Re1123">cqq3Re1123</option>
+                <option value="cqq3Re1212">cqq3Re1212</option>
+                <option value="cqq3Re1213">cqq3Re1213</option>
+                <option value="cqq3Re1231">cqq3Re1231</option>
+                <option value="cqq3Re1222">cqq3Re1222</option>
+                <option value="cqq3Re1223">cqq3Re1223</option>
+                <option value="cqq3Re1232">cqq3Re1232</option>
+                <option value="cqq3Re1233">cqq3Re1233</option>
+                <option value="cqq3Re1313">cqq3Re1313</option>
+                <option value="cqq3Re1322">cqq3Re1322</option>
+                <option value="cqq3Re1332">cqq3Re1332</option>
+                <option value="cqq3Re1323">cqq3Re1323</option>
+                <option value="cqq3Re1333">cqq3Re1333</option>
+                <option value="cqq3Re2223">cqq3Re2223</option>
+                <option value="cqq3Re2323">cqq3Re2323</option>
+                <option value="cqq3Re3323">cqq3Re3323</option>
+                <option value="clq1Re1111">clq1Re1111</option>
+                <option value="clq1Re1112">clq1Re1112</option>
+                <option value="clq1Re1113">clq1Re1113</option>
+                <option value="clq1Re1123">clq1Re1123</option>
+                <option value="clq1Re1122">clq1Re1122</option>
+                <option value="clq1Re1133">clq1Re1133</option>
+                <option value="clq1Re1211">clq1Re1211</option>
+                <option value="clq1Re1212">clq1Re1212</option>
+                <option value="clq1Re1221">clq1Re1221</option>
+                <option value="clq1Re1213">clq1Re1213</option>
+                <option value="clq1Re1231">clq1Re1231</option>
+                <option value="clq1Re1222">clq1Re1222</option>
+                <option value="clq1Re1223">clq1Re1223</option>
+                <option value="clq1Re1232">clq1Re1232</option>
+                <option value="clq1Re1233">clq1Re1233</option>
+                <option value="clq1Re1311">clq1Re1311</option>
+                <option value="clq1Re1312">clq1Re1312</option>
+                <option value="clq1Re1313">clq1Re1313</option>
+                <option value="clq1Re1331">clq1Re1331</option>
+                <option value="clq1Re1321">clq1Re1321</option>
+                <option value="clq1Re1322">clq1Re1322</option>
+                <option value="clq1Re1332">clq1Re1332</option>
+                <option value="clq1Re1323">clq1Re1323</option>
+                <option value="clq1Re1333">clq1Re1333</option>
+                <option value="clq1Re2211">clq1Re2211</option>
+                <option value="clq1Re2212">clq1Re2212</option>
+                <option value="clq1Re2213">clq1Re2213</option>
+                <option value="clq1Re2222">clq1Re2222</option>
+                <option value="clq1Re2223">clq1Re2223</option>
+                <option value="clq1Re2233">clq1Re2233</option>
+                <option value="clq1Re2311">clq1Re2311</option>
+                <option value="clq1Re2312">clq1Re2312</option>
+                <option value="clq1Re2313">clq1Re2313</option>
+                <option value="clq1Re2321">clq1Re2321</option>
+                <option value="clq1Re2322">clq1Re2322</option>
+                <option value="clq1Re2323">clq1Re2323</option>
+                <option value="clq1Re2331">clq1Re2331</option>
+                <option value="clq1Re2332">clq1Re2332</option>
+                <option value="clq1Re2333">clq1Re2333</option>
+                <option value="clq1Re3311">clq1Re3311</option>
+                <option value="clq1Re3312">clq1Re3312</option>
+                <option value="clq1Re3313">clq1Re3313</option>
+                <option value="clq1Re3322">clq1Re3322</option>
+                <option value="clq1Re3333">clq1Re3333</option>
+                <option value="clq1Re3323">clq1Re3323</option>
+                <option value="clq3Re1111">clq3Re1111</option>
+                <option value="clq3Re1112">clq3Re1112</option>
+                <option value="clq3Re1113">clq3Re1113</option>
+                <option value="clq3Re1123">clq3Re1123</option>
+                <option value="clq3Re1122">clq3Re1122</option>
+                <option value="clq3Re1133">clq3Re1133</option>
+                <option value="clq3Re1211">clq3Re1211</option>
+                <option value="clq3Re1212">clq3Re1212</option>
+                <option value="clq3Re1221">clq3Re1221</option>
+                <option value="clq3Re1213">clq3Re1213</option>
+                <option value="clq3Re1231">clq3Re1231</option>
+                <option value="clq3Re1222">clq3Re1222</option>
+                <option value="clq3Re1223">clq3Re1223</option>
+                <option value="clq3Re1232">clq3Re1232</option>
+                <option value="clq3Re1233">clq3Re1233</option>
+                <option value="clq3Re1311">clq3Re1311</option>
+                <option value="clq3Re1312">clq3Re1312</option>
+                <option value="clq3Re1313">clq3Re1313</option>
+                <option value="clq3Re1331">clq3Re1331</option>
+                <option value="clq3Re1321">clq3Re1321</option>
+                <option value="clq3Re1322">clq3Re1322</option>
+                <option value="clq3Re1332">clq3Re1332</option>
+                <option value="clq3Re1323">clq3Re1323</option>
+                <option value="clq3Re1333">clq3Re1333</option>
+                <option value="clq3Re2211">clq3Re2211</option>
+                <option value="clq3Re2212">clq3Re2212</option>
+                <option value="clq3Re2213">clq3Re2213</option>
+                <option value="clq3Re2222">clq3Re2222</option>
+                <option value="clq3Re2223">clq3Re2223</option>
+                <option value="clq3Re2233">clq3Re2233</option>
+                <option value="clq3Re2311">clq3Re2311</option>
+                <option value="clq3Re2312">clq3Re2312</option>
+                <option value="clq3Re2313">clq3Re2313</option>
+                <option value="clq3Re2321">clq3Re2321</option>
+                <option value="clq3Re2322">clq3Re2322</option>
+                <option value="clq3Re2323">clq3Re2323</option>
+                <option value="clq3Re2331">clq3Re2331</option>
+                <option value="clq3Re2332">clq3Re2332</option>
+                <option value="clq3Re2333">clq3Re2333</option>
+                <option value="clq3Re3311">clq3Re3311</option>
+                <option value="clq3Re3312">clq3Re3312</option>
+                <option value="clq3Re3313">clq3Re3313</option>
+                <option value="clq3Re3322">clq3Re3322</option>
+                <option value="clq3Re3333">clq3Re3333</option>
+                <option value="clq3Re3323">clq3Re3323</option>
+                <option value="ceeRe1111">ceeRe1111</option>
+                <option value="ceeRe1122">ceeRe1122</option>
+                <option value="ceeRe1133">ceeRe1133</option>
+                <option value="ceeRe2222">ceeRe2222</option>
+                <option value="ceeRe2233">ceeRe2233</option>
+                <option value="ceeRe3333">ceeRe3333</option>
+                <option value="ceeRe1112">ceeRe1112</option>
+                <option value="ceeRe1123">ceeRe1123</option>
+                <option value="ceeRe1113">ceeRe1113</option>
+                <option value="ceeRe1213">ceeRe1213</option>
+                <option value="ceeRe1212">ceeRe1212</option>
+                <option value="ceeRe1232">ceeRe1232</option>
+                <option value="ceeRe1222">ceeRe1222</option>
+                <option value="ceeRe1313">ceeRe1313</option>
+                <option value="ceeRe1233">ceeRe1233</option>
+                <option value="ceeRe1323">ceeRe1323</option>
+                <option value="ceeRe1322">ceeRe1322</option>
+                <option value="ceeRe2223">ceeRe2223</option>
+                <option value="ceeRe1333">ceeRe1333</option>
+                <option value="ceeRe3323">ceeRe3323</option>
+                <option value="ceeRe2323">ceeRe2323</option>
+                <option value="cuuRe1111">cuuRe1111</option>
+                <option value="cuuRe1122">cuuRe1122</option>
+                <option value="cuuRe1221">cuuRe1221</option>
+                <option value="cuuRe1133">cuuRe1133</option>
+                <option value="cuuRe1331">cuuRe1331</option>
+                <option value="cuuRe2222">cuuRe2222</option>
+                <option value="cuuRe2233">cuuRe2233</option>
+                <option value="cuuRe2332">cuuRe2332</option>
+                <option value="cuuRe3333">cuuRe3333</option>
+                <option value="cuuRe1112">cuuRe1112</option>
+                <option value="cuuRe1113">cuuRe1113</option>
+                <option value="cuuRe1123">cuuRe1123</option>
+                <option value="cuuRe1212">cuuRe1212</option>
+                <option value="cuuRe1213">cuuRe1213</option>
+                <option value="cuuRe1231">cuuRe1231</option>
+                <option value="cuuRe1222">cuuRe1222</option>
+                <option value="cuuRe1223">cuuRe1223</option>
+                <option value="cuuRe1232">cuuRe1232</option>
+                <option value="cuuRe1233">cuuRe1233</option>
+                <option value="cuuRe1313">cuuRe1313</option>
+                <option value="cuuRe1322">cuuRe1322</option>
+                <option value="cuuRe1332">cuuRe1332</option>
+                <option value="cuuRe1323">cuuRe1323</option>
+                <option value="cuuRe1333">cuuRe1333</option>
+                <option value="cuuRe2223">cuuRe2223</option>
+                <option value="cuuRe2323">cuuRe2323</option>
+                <option value="cuuRe3323">cuuRe3323</option>
+                <option value="cddRe1111">cddRe1111</option>
+                <option value="cddRe1122">cddRe1122</option>
+                <option value="cddRe1221">cddRe1221</option>
+                <option value="cddRe1133">cddRe1133</option>
+                <option value="cddRe1331">cddRe1331</option>
+                <option value="cddRe2222">cddRe2222</option>
+                <option value="cddRe2233">cddRe2233</option>
+                <option value="cddRe2332">cddRe2332</option>
+                <option value="cddRe3333">cddRe3333</option>
+                <option value="cddRe1112">cddRe1112</option>
+                <option value="cddRe1113">cddRe1113</option>
+                <option value="cddRe1123">cddRe1123</option>
+                <option value="cddRe1212">cddRe1212</option>
+                <option value="cddRe1213">cddRe1213</option>
+                <option value="cddRe1231">cddRe1231</option>
+                <option value="cddRe1222">cddRe1222</option>
+                <option value="cddRe1223">cddRe1223</option>
+                <option value="cddRe1232">cddRe1232</option>
+                <option value="cddRe1233">cddRe1233</option>
+                <option value="cddRe1313">cddRe1313</option>
+                <option value="cddRe1322">cddRe1322</option>
+                <option value="cddRe1332">cddRe1332</option>
+                <option value="cddRe1323">cddRe1323</option>
+                <option value="cddRe1333">cddRe1333</option>
+                <option value="cddRe2223">cddRe2223</option>
+                <option value="cddRe2323">cddRe2323</option>
+                <option value="cddRe3323">cddRe3323</option>
+                <option value="ceuRe1111">ceuRe1111</option>
+                <option value="ceuRe1112">ceuRe1112</option>
+                <option value="ceuRe1113">ceuRe1113</option>
+                <option value="ceuRe1123">ceuRe1123</option>
+                <option value="ceuRe1122">ceuRe1122</option>
+                <option value="ceuRe1133">ceuRe1133</option>
+                <option value="ceuRe1211">ceuRe1211</option>
+                <option value="ceuRe1212">ceuRe1212</option>
+                <option value="ceuRe1221">ceuRe1221</option>
+                <option value="ceuRe1213">ceuRe1213</option>
+                <option value="ceuRe1231">ceuRe1231</option>
+                <option value="ceuRe1222">ceuRe1222</option>
+                <option value="ceuRe1223">ceuRe1223</option>
+                <option value="ceuRe1232">ceuRe1232</option>
+                <option value="ceuRe1233">ceuRe1233</option>
+                <option value="ceuRe1311">ceuRe1311</option>
+                <option value="ceuRe1312">ceuRe1312</option>
+                <option value="ceuRe1313">ceuRe1313</option>
+                <option value="ceuRe1331">ceuRe1331</option>
+                <option value="ceuRe1321">ceuRe1321</option>
+                <option value="ceuRe1322">ceuRe1322</option>
+                <option value="ceuRe1332">ceuRe1332</option>
+                <option value="ceuRe1323">ceuRe1323</option>
+                <option value="ceuRe1333">ceuRe1333</option>
+                <option value="ceuRe2211">ceuRe2211</option>
+                <option value="ceuRe2212">ceuRe2212</option>
+                <option value="ceuRe2213">ceuRe2213</option>
+                <option value="ceuRe2222">ceuRe2222</option>
+                <option value="ceuRe2223">ceuRe2223</option>
+                <option value="ceuRe2233">ceuRe2233</option>
+                <option value="ceuRe2311">ceuRe2311</option>
+                <option value="ceuRe2312">ceuRe2312</option>
+                <option value="ceuRe2313">ceuRe2313</option>
+                <option value="ceuRe2321">ceuRe2321</option>
+                <option value="ceuRe2322">ceuRe2322</option>
+                <option value="ceuRe2323">ceuRe2323</option>
+                <option value="ceuRe2331">ceuRe2331</option>
+                <option value="ceuRe2332">ceuRe2332</option>
+                <option value="ceuRe2333">ceuRe2333</option>
+                <option value="ceuRe3311">ceuRe3311</option>
+                <option value="ceuRe3312">ceuRe3312</option>
+                <option value="ceuRe3313">ceuRe3313</option>
+                <option value="ceuRe3322">ceuRe3322</option>
+                <option value="ceuRe3333">ceuRe3333</option>
+                <option value="ceuRe3323">ceuRe3323</option>
+                <option value="cedRe1111">cedRe1111</option>
+                <option value="cedRe1112">cedRe1112</option>
+                <option value="cedRe1113">cedRe1113</option>
+                <option value="cedRe1123">cedRe1123</option>
+                <option value="cedRe1122">cedRe1122</option>
+                <option value="cedRe1133">cedRe1133</option>
+                <option value="cedRe1211">cedRe1211</option>
+                <option value="cedRe1212">cedRe1212</option>
+                <option value="cedRe1221">cedRe1221</option>
+                <option value="cedRe1213">cedRe1213</option>
+                <option value="cedRe1231">cedRe1231</option>
+                <option value="cedRe1222">cedRe1222</option>
+                <option value="cedRe1223">cedRe1223</option>
+                <option value="cedRe1232">cedRe1232</option>
+                <option value="cedRe1233">cedRe1233</option>
+                <option value="cedRe1311">cedRe1311</option>
+                <option value="cedRe1312">cedRe1312</option>
+                <option value="cedRe1313">cedRe1313</option>
+                <option value="cedRe1331">cedRe1331</option>
+                <option value="cedRe1321">cedRe1321</option>
+                <option value="cedRe1322">cedRe1322</option>
+                <option value="cedRe1332">cedRe1332</option>
+                <option value="cedRe1323">cedRe1323</option>
+                <option value="cedRe1333">cedRe1333</option>
+                <option value="cedRe2211">cedRe2211</option>
+                <option value="cedRe2212">cedRe2212</option>
+                <option value="cedRe2213">cedRe2213</option>
+                <option value="cedRe2222">cedRe2222</option>
+                <option value="cedRe2223">cedRe2223</option>
+                <option value="cedRe2233">cedRe2233</option>
+                <option value="cedRe2311">cedRe2311</option>
+                <option value="cedRe2312">cedRe2312</option>
+                <option value="cedRe2313">cedRe2313</option>
+                <option value="cedRe2321">cedRe2321</option>
+                <option value="cedRe2322">cedRe2322</option>
+                <option value="cedRe2323">cedRe2323</option>
+                <option value="cedRe2331">cedRe2331</option>
+                <option value="cedRe2332">cedRe2332</option>
+                <option value="cedRe2333">cedRe2333</option>
+                <option value="cedRe3311">cedRe3311</option>
+                <option value="cedRe3312">cedRe3312</option>
+                <option value="cedRe3313">cedRe3313</option>
+                <option value="cedRe3322">cedRe3322</option>
+                <option value="cedRe3333">cedRe3333</option>
+                <option value="cedRe3323">cedRe3323</option>
+                <option value="cud1Re1111">cud1Re1111</option>
+                <option value="cud1Re1112">cud1Re1112</option>
+                <option value="cud1Re1113">cud1Re1113</option>
+                <option value="cud1Re1123">cud1Re1123</option>
+                <option value="cud1Re1122">cud1Re1122</option>
+                <option value="cud1Re1133">cud1Re1133</option>
+                <option value="cud1Re1211">cud1Re1211</option>
+                <option value="cud1Re1212">cud1Re1212</option>
+                <option value="cud1Re1221">cud1Re1221</option>
+                <option value="cud1Re1213">cud1Re1213</option>
+                <option value="cud1Re1231">cud1Re1231</option>
+                <option value="cud1Re1222">cud1Re1222</option>
+                <option value="cud1Re1223">cud1Re1223</option>
+                <option value="cud1Re1232">cud1Re1232</option>
+                <option value="cud1Re1233">cud1Re1233</option>
+                <option value="cud1Re1311">cud1Re1311</option>
+                <option value="cud1Re1312">cud1Re1312</option>
+                <option value="cud1Re1313">cud1Re1313</option>
+                <option value="cud1Re1331">cud1Re1331</option>
+                <option value="cud1Re1321">cud1Re1321</option>
+                <option value="cud1Re1322">cud1Re1322</option>
+                <option value="cud1Re1332">cud1Re1332</option>
+                <option value="cud1Re1323">cud1Re1323</option>
+                <option value="cud1Re1333">cud1Re1333</option>
+                <option value="cud1Re2211">cud1Re2211</option>
+                <option value="cud1Re2212">cud1Re2212</option>
+                <option value="cud1Re2213">cud1Re2213</option>
+                <option value="cud1Re2222">cud1Re2222</option>
+                <option value="cud1Re2223">cud1Re2223</option>
+                <option value="cud1Re2233">cud1Re2233</option>
+                <option value="cud1Re2311">cud1Re2311</option>
+                <option value="cud1Re2312">cud1Re2312</option>
+                <option value="cud1Re2313">cud1Re2313</option>
+                <option value="cud1Re2321">cud1Re2321</option>
+                <option value="cud1Re2322">cud1Re2322</option>
+                <option value="cud1Re2323">cud1Re2323</option>
+                <option value="cud1Re2331">cud1Re2331</option>
+                <option value="cud1Re2332">cud1Re2332</option>
+                <option value="cud1Re2333">cud1Re2333</option>
+                <option value="cud1Re3311">cud1Re3311</option>
+                <option value="cud1Re3312">cud1Re3312</option>
+                <option value="cud1Re3313">cud1Re3313</option>
+                <option value="cud1Re3322">cud1Re3322</option>
+                <option value="cud1Re3333">cud1Re3333</option>
+                <option value="cud1Re3323">cud1Re3323</option>
+                <option value="cud8Re1111">cud8Re1111</option>
+                <option value="cud8Re1112">cud8Re1112</option>
+                <option value="cud8Re1113">cud8Re1113</option>
+                <option value="cud8Re1123">cud8Re1123</option>
+                <option value="cud8Re1122">cud8Re1122</option>
+                <option value="cud8Re1133">cud8Re1133</option>
+                <option value="cud8Re1211">cud8Re1211</option>
+                <option value="cud8Re1212">cud8Re1212</option>
+                <option value="cud8Re1221">cud8Re1221</option>
+                <option value="cud8Re1213">cud8Re1213</option>
+                <option value="cud8Re1231">cud8Re1231</option>
+                <option value="cud8Re1222">cud8Re1222</option>
+                <option value="cud8Re1223">cud8Re1223</option>
+                <option value="cud8Re1232">cud8Re1232</option>
+                <option value="cud8Re1233">cud8Re1233</option>
+                <option value="cud8Re1311">cud8Re1311</option>
+                <option value="cud8Re1312">cud8Re1312</option>
+                <option value="cud8Re1313">cud8Re1313</option>
+                <option value="cud8Re1331">cud8Re1331</option>
+                <option value="cud8Re1321">cud8Re1321</option>
+                <option value="cud8Re1322">cud8Re1322</option>
+                <option value="cud8Re1332">cud8Re1332</option>
+                <option value="cud8Re1323">cud8Re1323</option>
+                <option value="cud8Re1333">cud8Re1333</option>
+                <option value="cud8Re2211">cud8Re2211</option>
+                <option value="cud8Re2212">cud8Re2212</option>
+                <option value="cud8Re2213">cud8Re2213</option>
+                <option value="cud8Re2222">cud8Re2222</option>
+                <option value="cud8Re2223">cud8Re2223</option>
+                <option value="cud8Re2233">cud8Re2233</option>
+                <option value="cud8Re2311">cud8Re2311</option>
+                <option value="cud8Re2312">cud8Re2312</option>
+                <option value="cud8Re2313">cud8Re2313</option>
+                <option value="cud8Re2321">cud8Re2321</option>
+                <option value="cud8Re2322">cud8Re2322</option>
+                <option value="cud8Re2323">cud8Re2323</option>
+                <option value="cud8Re2331">cud8Re2331</option>
+                <option value="cud8Re2332">cud8Re2332</option>
+                <option value="cud8Re2333">cud8Re2333</option>
+                <option value="cud8Re3311">cud8Re3311</option>
+                <option value="cud8Re3312">cud8Re3312</option>
+                <option value="cud8Re3313">cud8Re3313</option>
+                <option value="cud8Re3322">cud8Re3322</option>
+                <option value="cud8Re3333">cud8Re3333</option>
+                <option value="cud8Re3323">cud8Re3323</option>
+                <option value="cleRe1111">cleRe1111</option>
+                <option value="cleRe1112">cleRe1112</option>
+                <option value="cleRe1113">cleRe1113</option>
+                <option value="cleRe1123">cleRe1123</option>
+                <option value="cleRe1122">cleRe1122</option>
+                <option value="cleRe1133">cleRe1133</option>
+                <option value="cleRe1211">cleRe1211</option>
+                <option value="cleRe1212">cleRe1212</option>
+                <option value="cleRe1221">cleRe1221</option>
+                <option value="cleRe1213">cleRe1213</option>
+                <option value="cleRe1231">cleRe1231</option>
+                <option value="cleRe1222">cleRe1222</option>
+                <option value="cleRe1223">cleRe1223</option>
+                <option value="cleRe1232">cleRe1232</option>
+                <option value="cleRe1233">cleRe1233</option>
+                <option value="cleRe1311">cleRe1311</option>
+                <option value="cleRe1312">cleRe1312</option>
+                <option value="cleRe1313">cleRe1313</option>
+                <option value="cleRe1331">cleRe1331</option>
+                <option value="cleRe1321">cleRe1321</option>
+                <option value="cleRe1322">cleRe1322</option>
+                <option value="cleRe1332">cleRe1332</option>
+                <option value="cleRe1323">cleRe1323</option>
+                <option value="cleRe1333">cleRe1333</option>
+                <option value="cleRe2211">cleRe2211</option>
+                <option value="cleRe2212">cleRe2212</option>
+                <option value="cleRe2213">cleRe2213</option>
+                <option value="cleRe2222">cleRe2222</option>
+                <option value="cleRe2223">cleRe2223</option>
+                <option value="cleRe2233">cleRe2233</option>
+                <option value="cleRe2311">cleRe2311</option>
+                <option value="cleRe2312">cleRe2312</option>
+                <option value="cleRe2313">cleRe2313</option>
+                <option value="cleRe2321">cleRe2321</option>
+                <option value="cleRe2322">cleRe2322</option>
+                <option value="cleRe2323">cleRe2323</option>
+                <option value="cleRe2331">cleRe2331</option>
+                <option value="cleRe2332">cleRe2332</option>
+                <option value="cleRe2333">cleRe2333</option>
+                <option value="cleRe3311">cleRe3311</option>
+                <option value="cleRe3312">cleRe3312</option>
+                <option value="cleRe3313">cleRe3313</option>
+                <option value="cleRe3322">cleRe3322</option>
+                <option value="cleRe3333">cleRe3333</option>
+                <option value="cleRe3323">cleRe3323</option>
+                <option value="cluRe1111">cluRe1111</option>
+                <option value="cluRe1112">cluRe1112</option>
+                <option value="cluRe1113">cluRe1113</option>
+                <option value="cluRe1123">cluRe1123</option>
+                <option value="cluRe1122">cluRe1122</option>
+                <option value="cluRe1133">cluRe1133</option>
+                <option value="cluRe1211">cluRe1211</option>
+                <option value="cluRe1212">cluRe1212</option>
+                <option value="cluRe1221">cluRe1221</option>
+                <option value="cluRe1213">cluRe1213</option>
+                <option value="cluRe1231">cluRe1231</option>
+                <option value="cluRe1222">cluRe1222</option>
+                <option value="cluRe1223">cluRe1223</option>
+                <option value="cluRe1232">cluRe1232</option>
+                <option value="cluRe1233">cluRe1233</option>
+                <option value="cluRe1311">cluRe1311</option>
+                <option value="cluRe1312">cluRe1312</option>
+                <option value="cluRe1313">cluRe1313</option>
+                <option value="cluRe1331">cluRe1331</option>
+                <option value="cluRe1321">cluRe1321</option>
+                <option value="cluRe1322">cluRe1322</option>
+                <option value="cluRe1332">cluRe1332</option>
+                <option value="cluRe1323">cluRe1323</option>
+                <option value="cluRe1333">cluRe1333</option>
+                <option value="cluRe2211">cluRe2211</option>
+                <option value="cluRe2212">cluRe2212</option>
+                <option value="cluRe2213">cluRe2213</option>
+                <option value="cluRe2222">cluRe2222</option>
+                <option value="cluRe2223">cluRe2223</option>
+                <option value="cluRe2233">cluRe2233</option>
+                <option value="cluRe2311">cluRe2311</option>
+                <option value="cluRe2312">cluRe2312</option>
+                <option value="cluRe2313">cluRe2313</option>
+                <option value="cluRe2321">cluRe2321</option>
+                <option value="cluRe2322">cluRe2322</option>
+                <option value="cluRe2323">cluRe2323</option>
+                <option value="cluRe2331">cluRe2331</option>
+                <option value="cluRe2332">cluRe2332</option>
+                <option value="cluRe2333">cluRe2333</option>
+                <option value="cluRe3311">cluRe3311</option>
+                <option value="cluRe3312">cluRe3312</option>
+                <option value="cluRe3313">cluRe3313</option>
+                <option value="cluRe3322">cluRe3322</option>
+                <option value="cluRe3333">cluRe3333</option>
+                <option value="cluRe3323">cluRe3323</option>
+                <option value="cldRe1111">cldRe1111</option>
+                <option value="cldRe1112">cldRe1112</option>
+                <option value="cldRe1113">cldRe1113</option>
+                <option value="cldRe1123">cldRe1123</option>
+                <option value="cldRe1122">cldRe1122</option>
+                <option value="cldRe1133">cldRe1133</option>
+                <option value="cldRe1211">cldRe1211</option>
+                <option value="cldRe1212">cldRe1212</option>
+                <option value="cldRe1221">cldRe1221</option>
+                <option value="cldRe1213">cldRe1213</option>
+                <option value="cldRe1231">cldRe1231</option>
+                <option value="cldRe1222">cldRe1222</option>
+                <option value="cldRe1223">cldRe1223</option>
+                <option value="cldRe1232">cldRe1232</option>
+                <option value="cldRe1233">cldRe1233</option>
+                <option value="cldRe1311">cldRe1311</option>
+                <option value="cldRe1312">cldRe1312</option>
+                <option value="cldRe1313">cldRe1313</option>
+                <option value="cldRe1331">cldRe1331</option>
+                <option value="cldRe1321">cldRe1321</option>
+                <option value="cldRe1322">cldRe1322</option>
+                <option value="cldRe1332">cldRe1332</option>
+                <option value="cldRe1323">cldRe1323</option>
+                <option value="cldRe1333">cldRe1333</option>
+                <option value="cldRe2211">cldRe2211</option>
+                <option value="cldRe2212">cldRe2212</option>
+                <option value="cldRe2213">cldRe2213</option>
+                <option value="cldRe2222">cldRe2222</option>
+                <option value="cldRe2223">cldRe2223</option>
+                <option value="cldRe2233">cldRe2233</option>
+                <option value="cldRe2311">cldRe2311</option>
+                <option value="cldRe2312">cldRe2312</option>
+                <option value="cldRe2313">cldRe2313</option>
+                <option value="cldRe2321">cldRe2321</option>
+                <option value="cldRe2322">cldRe2322</option>
+                <option value="cldRe2323">cldRe2323</option>
+                <option value="cldRe2331">cldRe2331</option>
+                <option value="cldRe2332">cldRe2332</option>
+                <option value="cldRe2333">cldRe2333</option>
+                <option value="cldRe3311">cldRe3311</option>
+                <option value="cldRe3312">cldRe3312</option>
+                <option value="cldRe3313">cldRe3313</option>
+                <option value="cldRe3322">cldRe3322</option>
+                <option value="cldRe3333">cldRe3333</option>
+                <option value="cldRe3323">cldRe3323</option>
+                <option value="cqeRe1111">cqeRe1111</option>
+                <option value="cqeRe1112">cqeRe1112</option>
+                <option value="cqeRe1113">cqeRe1113</option>
+                <option value="cqeRe1123">cqeRe1123</option>
+                <option value="cqeRe1122">cqeRe1122</option>
+                <option value="cqeRe1133">cqeRe1133</option>
+                <option value="cqeRe1211">cqeRe1211</option>
+                <option value="cqeRe1212">cqeRe1212</option>
+                <option value="cqeRe1221">cqeRe1221</option>
+                <option value="cqeRe1213">cqeRe1213</option>
+                <option value="cqeRe1231">cqeRe1231</option>
+                <option value="cqeRe1222">cqeRe1222</option>
+                <option value="cqeRe1223">cqeRe1223</option>
+                <option value="cqeRe1232">cqeRe1232</option>
+                <option value="cqeRe1233">cqeRe1233</option>
+                <option value="cqeRe1311">cqeRe1311</option>
+                <option value="cqeRe1312">cqeRe1312</option>
+                <option value="cqeRe1313">cqeRe1313</option>
+                <option value="cqeRe1331">cqeRe1331</option>
+                <option value="cqeRe1321">cqeRe1321</option>
+                <option value="cqeRe1322">cqeRe1322</option>
+                <option value="cqeRe1332">cqeRe1332</option>
+                <option value="cqeRe1323">cqeRe1323</option>
+                <option value="cqeRe1333">cqeRe1333</option>
+                <option value="cqeRe2211">cqeRe2211</option>
+                <option value="cqeRe2212">cqeRe2212</option>
+                <option value="cqeRe2213">cqeRe2213</option>
+                <option value="cqeRe2222">cqeRe2222</option>
+                <option value="cqeRe2223">cqeRe2223</option>
+                <option value="cqeRe2233">cqeRe2233</option>
+                <option value="cqeRe2311">cqeRe2311</option>
+                <option value="cqeRe2312">cqeRe2312</option>
+                <option value="cqeRe2313">cqeRe2313</option>
+                <option value="cqeRe2321">cqeRe2321</option>
+                <option value="cqeRe2322">cqeRe2322</option>
+                <option value="cqeRe2323">cqeRe2323</option>
+                <option value="cqeRe2331">cqeRe2331</option>
+                <option value="cqeRe2332">cqeRe2332</option>
+                <option value="cqeRe2333">cqeRe2333</option>
+                <option value="cqeRe3311">cqeRe3311</option>
+                <option value="cqeRe3312">cqeRe3312</option>
+                <option value="cqeRe3313">cqeRe3313</option>
+                <option value="cqeRe3322">cqeRe3322</option>
+                <option value="cqeRe3333">cqeRe3333</option>
+                <option value="cqeRe3323">cqeRe3323</option>
+                <option value="cqu1Re1111">cqu1Re1111</option>
+                <option value="cqu1Re1112">cqu1Re1112</option>
+                <option value="cqu1Re1113">cqu1Re1113</option>
+                <option value="cqu1Re1123">cqu1Re1123</option>
+                <option value="cqu1Re1122">cqu1Re1122</option>
+                <option value="cqu1Re1133">cqu1Re1133</option>
+                <option value="cqu1Re1211">cqu1Re1211</option>
+                <option value="cqu1Re1212">cqu1Re1212</option>
+                <option value="cqu1Re1221">cqu1Re1221</option>
+                <option value="cqu1Re1213">cqu1Re1213</option>
+                <option value="cqu1Re1231">cqu1Re1231</option>
+                <option value="cqu1Re1222">cqu1Re1222</option>
+                <option value="cqu1Re1223">cqu1Re1223</option>
+                <option value="cqu1Re1232">cqu1Re1232</option>
+                <option value="cqu1Re1233">cqu1Re1233</option>
+                <option value="cqu1Re1311">cqu1Re1311</option>
+                <option value="cqu1Re1312">cqu1Re1312</option>
+                <option value="cqu1Re1313">cqu1Re1313</option>
+                <option value="cqu1Re1331">cqu1Re1331</option>
+                <option value="cqu1Re1321">cqu1Re1321</option>
+                <option value="cqu1Re1322">cqu1Re1322</option>
+                <option value="cqu1Re1332">cqu1Re1332</option>
+                <option value="cqu1Re1323">cqu1Re1323</option>
+                <option value="cqu1Re1333">cqu1Re1333</option>
+                <option value="cqu1Re2211">cqu1Re2211</option>
+                <option value="cqu1Re2212">cqu1Re2212</option>
+                <option value="cqu1Re2213">cqu1Re2213</option>
+                <option value="cqu1Re2222">cqu1Re2222</option>
+                <option value="cqu1Re2223">cqu1Re2223</option>
+                <option value="cqu1Re2233">cqu1Re2233</option>
+                <option value="cqu1Re2311">cqu1Re2311</option>
+                <option value="cqu1Re2312">cqu1Re2312</option>
+                <option value="cqu1Re2313">cqu1Re2313</option>
+                <option value="cqu1Re2321">cqu1Re2321</option>
+                <option value="cqu1Re2322">cqu1Re2322</option>
+                <option value="cqu1Re2323">cqu1Re2323</option>
+                <option value="cqu1Re2331">cqu1Re2331</option>
+                <option value="cqu1Re2332">cqu1Re2332</option>
+                <option value="cqu1Re2333">cqu1Re2333</option>
+                <option value="cqu1Re3311">cqu1Re3311</option>
+                <option value="cqu1Re3312">cqu1Re3312</option>
+                <option value="cqu1Re3313">cqu1Re3313</option>
+                <option value="cqu1Re3322">cqu1Re3322</option>
+                <option value="cqu1Re3333">cqu1Re3333</option>
+                <option value="cqu1Re3323">cqu1Re3323</option>
+                <option value="cqu8Re1111">cqu8Re1111</option>
+                <option value="cqu8Re1112">cqu8Re1112</option>
+                <option value="cqu8Re1113">cqu8Re1113</option>
+                <option value="cqu8Re1123">cqu8Re1123</option>
+                <option value="cqu8Re1122">cqu8Re1122</option>
+                <option value="cqu8Re1133">cqu8Re1133</option>
+                <option value="cqu8Re1211">cqu8Re1211</option>
+                <option value="cqu8Re1212">cqu8Re1212</option>
+                <option value="cqu8Re1221">cqu8Re1221</option>
+                <option value="cqu8Re1213">cqu8Re1213</option>
+                <option value="cqu8Re1231">cqu8Re1231</option>
+                <option value="cqu8Re1222">cqu8Re1222</option>
+                <option value="cqu8Re1223">cqu8Re1223</option>
+                <option value="cqu8Re1232">cqu8Re1232</option>
+                <option value="cqu8Re1233">cqu8Re1233</option>
+                <option value="cqu8Re1311">cqu8Re1311</option>
+                <option value="cqu8Re1312">cqu8Re1312</option>
+                <option value="cqu8Re1313">cqu8Re1313</option>
+                <option value="cqu8Re1331">cqu8Re1331</option>
+                <option value="cqu8Re1321">cqu8Re1321</option>
+                <option value="cqu8Re1322">cqu8Re1322</option>
+                <option value="cqu8Re1332">cqu8Re1332</option>
+                <option value="cqu8Re1323">cqu8Re1323</option>
+                <option value="cqu8Re1333">cqu8Re1333</option>
+                <option value="cqu8Re2211">cqu8Re2211</option>
+                <option value="cqu8Re2212">cqu8Re2212</option>
+                <option value="cqu8Re2213">cqu8Re2213</option>
+                <option value="cqu8Re2222">cqu8Re2222</option>
+                <option value="cqu8Re2223">cqu8Re2223</option>
+                <option value="cqu8Re2233">cqu8Re2233</option>
+                <option value="cqu8Re2311">cqu8Re2311</option>
+                <option value="cqu8Re2312">cqu8Re2312</option>
+                <option value="cqu8Re2313">cqu8Re2313</option>
+                <option value="cqu8Re2321">cqu8Re2321</option>
+                <option value="cqu8Re2322">cqu8Re2322</option>
+                <option value="cqu8Re2323">cqu8Re2323</option>
+                <option value="cqu8Re2331">cqu8Re2331</option>
+                <option value="cqu8Re2332">cqu8Re2332</option>
+                <option value="cqu8Re2333">cqu8Re2333</option>
+                <option value="cqu8Re3311">cqu8Re3311</option>
+                <option value="cqu8Re3312">cqu8Re3312</option>
+                <option value="cqu8Re3313">cqu8Re3313</option>
+                <option value="cqu8Re3322">cqu8Re3322</option>
+                <option value="cqu8Re3333">cqu8Re3333</option>
+                <option value="cqu8Re3323">cqu8Re3323</option>
+                <option value="cqd1Re1111">cqd1Re1111</option>
+                <option value="cqd1Re1112">cqd1Re1112</option>
+                <option value="cqd1Re1113">cqd1Re1113</option>
+                <option value="cqd1Re1123">cqd1Re1123</option>
+                <option value="cqd1Re1122">cqd1Re1122</option>
+                <option value="cqd1Re1133">cqd1Re1133</option>
+                <option value="cqd1Re1211">cqd1Re1211</option>
+                <option value="cqd1Re1212">cqd1Re1212</option>
+                <option value="cqd1Re1221">cqd1Re1221</option>
+                <option value="cqd1Re1213">cqd1Re1213</option>
+                <option value="cqd1Re1231">cqd1Re1231</option>
+                <option value="cqd1Re1222">cqd1Re1222</option>
+                <option value="cqd1Re1223">cqd1Re1223</option>
+                <option value="cqd1Re1232">cqd1Re1232</option>
+                <option value="cqd1Re1233">cqd1Re1233</option>
+                <option value="cqd1Re1311">cqd1Re1311</option>
+                <option value="cqd1Re1312">cqd1Re1312</option>
+                <option value="cqd1Re1313">cqd1Re1313</option>
+                <option value="cqd1Re1331">cqd1Re1331</option>
+                <option value="cqd1Re1321">cqd1Re1321</option>
+                <option value="cqd1Re1322">cqd1Re1322</option>
+                <option value="cqd1Re1332">cqd1Re1332</option>
+                <option value="cqd1Re1323">cqd1Re1323</option>
+                <option value="cqd1Re1333">cqd1Re1333</option>
+                <option value="cqd1Re2211">cqd1Re2211</option>
+                <option value="cqd1Re2212">cqd1Re2212</option>
+                <option value="cqd1Re2213">cqd1Re2213</option>
+                <option value="cqd1Re2222">cqd1Re2222</option>
+                <option value="cqd1Re2223">cqd1Re2223</option>
+                <option value="cqd1Re2233">cqd1Re2233</option>
+                <option value="cqd1Re2311">cqd1Re2311</option>
+                <option value="cqd1Re2312">cqd1Re2312</option>
+                <option value="cqd1Re2313">cqd1Re2313</option>
+                <option value="cqd1Re2321">cqd1Re2321</option>
+                <option value="cqd1Re2322">cqd1Re2322</option>
+                <option value="cqd1Re2323">cqd1Re2323</option>
+                <option value="cqd1Re2331">cqd1Re2331</option>
+                <option value="cqd1Re2332">cqd1Re2332</option>
+                <option value="cqd1Re2333">cqd1Re2333</option>
+                <option value="cqd1Re3311">cqd1Re3311</option>
+                <option value="cqd1Re3312">cqd1Re3312</option>
+                <option value="cqd1Re3313">cqd1Re3313</option>
+                <option value="cqd1Re3322">cqd1Re3322</option>
+                <option value="cqd1Re3333">cqd1Re3333</option>
+                <option value="cqd1Re3323">cqd1Re3323</option>
+                <option value="cqd8Re1111">cqd8Re1111</option>
+                <option value="cqd8Re1112">cqd8Re1112</option>
+                <option value="cqd8Re1113">cqd8Re1113</option>
+                <option value="cqd8Re1123">cqd8Re1123</option>
+                <option value="cqd8Re1122">cqd8Re1122</option>
+                <option value="cqd8Re1133">cqd8Re1133</option>
+                <option value="cqd8Re1211">cqd8Re1211</option>
+                <option value="cqd8Re1212">cqd8Re1212</option>
+                <option value="cqd8Re1221">cqd8Re1221</option>
+                <option value="cqd8Re1213">cqd8Re1213</option>
+                <option value="cqd8Re1231">cqd8Re1231</option>
+                <option value="cqd8Re1222">cqd8Re1222</option>
+                <option value="cqd8Re1223">cqd8Re1223</option>
+                <option value="cqd8Re1232">cqd8Re1232</option>
+                <option value="cqd8Re1233">cqd8Re1233</option>
+                <option value="cqd8Re1311">cqd8Re1311</option>
+                <option value="cqd8Re1312">cqd8Re1312</option>
+                <option value="cqd8Re1313">cqd8Re1313</option>
+                <option value="cqd8Re1331">cqd8Re1331</option>
+                <option value="cqd8Re1321">cqd8Re1321</option>
+                <option value="cqd8Re1322">cqd8Re1322</option>
+                <option value="cqd8Re1332">cqd8Re1332</option>
+                <option value="cqd8Re1323">cqd8Re1323</option>
+                <option value="cqd8Re1333">cqd8Re1333</option>
+                <option value="cqd8Re2211">cqd8Re2211</option>
+                <option value="cqd8Re2212">cqd8Re2212</option>
+                <option value="cqd8Re2213">cqd8Re2213</option>
+                <option value="cqd8Re2222">cqd8Re2222</option>
+                <option value="cqd8Re2223">cqd8Re2223</option>
+                <option value="cqd8Re2233">cqd8Re2233</option>
+                <option value="cqd8Re2311">cqd8Re2311</option>
+                <option value="cqd8Re2312">cqd8Re2312</option>
+                <option value="cqd8Re2313">cqd8Re2313</option>
+                <option value="cqd8Re2321">cqd8Re2321</option>
+                <option value="cqd8Re2322">cqd8Re2322</option>
+                <option value="cqd8Re2323">cqd8Re2323</option>
+                <option value="cqd8Re2331">cqd8Re2331</option>
+                <option value="cqd8Re2332">cqd8Re2332</option>
+                <option value="cqd8Re2333">cqd8Re2333</option>
+                <option value="cqd8Re3311">cqd8Re3311</option>
+                <option value="cqd8Re3312">cqd8Re3312</option>
+                <option value="cqd8Re3313">cqd8Re3313</option>
+                <option value="cqd8Re3322">cqd8Re3322</option>
+                <option value="cqd8Re3333">cqd8Re3333</option>
+                <option value="cqd8Re3323">cqd8Re3323</option>
+                <option value="cledqRe1111">cledqRe1111</option>
+                <option value="cledqRe1112">cledqRe1112</option>
+                <option value="cledqRe1113">cledqRe1113</option>
+                <option value="cledqRe1121">cledqRe1121</option>
+                <option value="cledqRe1122">cledqRe1122</option>
+                <option value="cledqRe1123">cledqRe1123</option>
+                <option value="cledqRe1131">cledqRe1131</option>
+                <option value="cledqRe1132">cledqRe1132</option>
+                <option value="cledqRe1133">cledqRe1133</option>
+                <option value="cledqRe2211">cledqRe2211</option>
+                <option value="cledqRe2212">cledqRe2212</option>
+                <option value="cledqRe2213">cledqRe2213</option>
+                <option value="cledqRe2221">cledqRe2221</option>
+                <option value="cledqRe2222">cledqRe2222</option>
+                <option value="cledqRe2223">cledqRe2223</option>
+                <option value="cledqRe2231">cledqRe2231</option>
+                <option value="cledqRe2232">cledqRe2232</option>
+                <option value="cledqRe2233">cledqRe2233</option>
+                <option value="cledqRe3311">cledqRe3311</option>
+                <option value="cledqRe3312">cledqRe3312</option>
+                <option value="cledqRe3313">cledqRe3313</option>
+                <option value="cledqRe3321">cledqRe3321</option>
+                <option value="cledqRe3322">cledqRe3322</option>
+                <option value="cledqRe3323">cledqRe3323</option>
+                <option value="cledqRe3331">cledqRe3331</option>
+                <option value="cledqRe3332">cledqRe3332</option>
+                <option value="cledqRe3333">cledqRe3333</option>
+                <option value="cledqRe1211">cledqRe1211</option>
+                <option value="cledqRe1212">cledqRe1212</option>
+                <option value="cledqRe1213">cledqRe1213</option>
+                <option value="cledqRe1221">cledqRe1221</option>
+                <option value="cledqRe1222">cledqRe1222</option>
+                <option value="cledqRe1223">cledqRe1223</option>
+                <option value="cledqRe1231">cledqRe1231</option>
+                <option value="cledqRe1232">cledqRe1232</option>
+                <option value="cledqRe1233">cledqRe1233</option>
+                <option value="cledqRe1311">cledqRe1311</option>
+                <option value="cledqRe1312">cledqRe1312</option>
+                <option value="cledqRe1313">cledqRe1313</option>
+                <option value="cledqRe1321">cledqRe1321</option>
+                <option value="cledqRe1322">cledqRe1322</option>
+                <option value="cledqRe1323">cledqRe1323</option>
+                <option value="cledqRe1331">cledqRe1331</option>
+                <option value="cledqRe1332">cledqRe1332</option>
+                <option value="cledqRe1333">cledqRe1333</option>
+                <option value="cledqRe2311">cledqRe2311</option>
+                <option value="cledqRe2312">cledqRe2312</option>
+                <option value="cledqRe2313">cledqRe2313</option>
+                <option value="cledqRe2321">cledqRe2321</option>
+                <option value="cledqRe2322">cledqRe2322</option>
+                <option value="cledqRe2323">cledqRe2323</option>
+                <option value="cledqRe2331">cledqRe2331</option>
+                <option value="cledqRe2332">cledqRe2332</option>
+                <option value="cledqRe2333">cledqRe2333</option>
+                <option value="cledqRe2111">cledqRe2111</option>
+                <option value="cledqRe2112">cledqRe2112</option>
+                <option value="cledqRe2113">cledqRe2113</option>
+                <option value="cledqRe2121">cledqRe2121</option>
+                <option value="cledqRe2122">cledqRe2122</option>
+                <option value="cledqRe2123">cledqRe2123</option>
+                <option value="cledqRe2131">cledqRe2131</option>
+                <option value="cledqRe2132">cledqRe2132</option>
+                <option value="cledqRe2133">cledqRe2133</option>
+                <option value="cledqRe3111">cledqRe3111</option>
+                <option value="cledqRe3112">cledqRe3112</option>
+                <option value="cledqRe3113">cledqRe3113</option>
+                <option value="cledqRe3121">cledqRe3121</option>
+                <option value="cledqRe3122">cledqRe3122</option>
+                <option value="cledqRe3123">cledqRe3123</option>
+                <option value="cledqRe3131">cledqRe3131</option>
+                <option value="cledqRe3132">cledqRe3132</option>
+                <option value="cledqRe3133">cledqRe3133</option>
+                <option value="cledqRe3211">cledqRe3211</option>
+                <option value="cledqRe3212">cledqRe3212</option>
+                <option value="cledqRe3213">cledqRe3213</option>
+                <option value="cledqRe3221">cledqRe3221</option>
+                <option value="cledqRe3222">cledqRe3222</option>
+                <option value="cledqRe3223">cledqRe3223</option>
+                <option value="cledqRe3231">cledqRe3231</option>
+                <option value="cledqRe3232">cledqRe3232</option>
+                <option value="cledqRe3233">cledqRe3233</option>
+                <option value="cquqd1Re1111">cquqd1Re1111</option>
+                <option value="cquqd1Re1112">cquqd1Re1112</option>
+                <option value="cquqd1Re1113">cquqd1Re1113</option>
+                <option value="cquqd1Re1121">cquqd1Re1121</option>
+                <option value="cquqd1Re1122">cquqd1Re1122</option>
+                <option value="cquqd1Re1123">cquqd1Re1123</option>
+                <option value="cquqd1Re1131">cquqd1Re1131</option>
+                <option value="cquqd1Re1132">cquqd1Re1132</option>
+                <option value="cquqd1Re1133">cquqd1Re1133</option>
+                <option value="cquqd1Re2211">cquqd1Re2211</option>
+                <option value="cquqd1Re2212">cquqd1Re2212</option>
+                <option value="cquqd1Re2213">cquqd1Re2213</option>
+                <option value="cquqd1Re2221">cquqd1Re2221</option>
+                <option value="cquqd1Re2222">cquqd1Re2222</option>
+                <option value="cquqd1Re2223">cquqd1Re2223</option>
+                <option value="cquqd1Re2231">cquqd1Re2231</option>
+                <option value="cquqd1Re2232">cquqd1Re2232</option>
+                <option value="cquqd1Re2233">cquqd1Re2233</option>
+                <option value="cquqd1Re3311">cquqd1Re3311</option>
+                <option value="cquqd1Re3312">cquqd1Re3312</option>
+                <option value="cquqd1Re3313">cquqd1Re3313</option>
+                <option value="cquqd1Re3321">cquqd1Re3321</option>
+                <option value="cquqd1Re3322">cquqd1Re3322</option>
+                <option value="cquqd1Re3323">cquqd1Re3323</option>
+                <option value="cquqd1Re3331">cquqd1Re3331</option>
+                <option value="cquqd1Re3332">cquqd1Re3332</option>
+                <option value="cquqd1Re3333">cquqd1Re3333</option>
+                <option value="cquqd1Re1211">cquqd1Re1211</option>
+                <option value="cquqd1Re1212">cquqd1Re1212</option>
+                <option value="cquqd1Re1213">cquqd1Re1213</option>
+                <option value="cquqd1Re1221">cquqd1Re1221</option>
+                <option value="cquqd1Re1222">cquqd1Re1222</option>
+                <option value="cquqd1Re1223">cquqd1Re1223</option>
+                <option value="cquqd1Re1231">cquqd1Re1231</option>
+                <option value="cquqd1Re1232">cquqd1Re1232</option>
+                <option value="cquqd1Re1233">cquqd1Re1233</option>
+                <option value="cquqd1Re1311">cquqd1Re1311</option>
+                <option value="cquqd1Re1312">cquqd1Re1312</option>
+                <option value="cquqd1Re1313">cquqd1Re1313</option>
+                <option value="cquqd1Re1321">cquqd1Re1321</option>
+                <option value="cquqd1Re1322">cquqd1Re1322</option>
+                <option value="cquqd1Re1323">cquqd1Re1323</option>
+                <option value="cquqd1Re1331">cquqd1Re1331</option>
+                <option value="cquqd1Re1332">cquqd1Re1332</option>
+                <option value="cquqd1Re1333">cquqd1Re1333</option>
+                <option value="cquqd1Re2311">cquqd1Re2311</option>
+                <option value="cquqd1Re2312">cquqd1Re2312</option>
+                <option value="cquqd1Re2313">cquqd1Re2313</option>
+                <option value="cquqd1Re2321">cquqd1Re2321</option>
+                <option value="cquqd1Re2322">cquqd1Re2322</option>
+                <option value="cquqd1Re2323">cquqd1Re2323</option>
+                <option value="cquqd1Re2331">cquqd1Re2331</option>
+                <option value="cquqd1Re2332">cquqd1Re2332</option>
+                <option value="cquqd1Re2333">cquqd1Re2333</option>
+                <option value="cquqd1Re2111">cquqd1Re2111</option>
+                <option value="cquqd1Re2112">cquqd1Re2112</option>
+                <option value="cquqd1Re2113">cquqd1Re2113</option>
+                <option value="cquqd1Re2121">cquqd1Re2121</option>
+                <option value="cquqd1Re2122">cquqd1Re2122</option>
+                <option value="cquqd1Re2123">cquqd1Re2123</option>
+                <option value="cquqd1Re2131">cquqd1Re2131</option>
+                <option value="cquqd1Re2132">cquqd1Re2132</option>
+                <option value="cquqd1Re2133">cquqd1Re2133</option>
+                <option value="cquqd1Re3111">cquqd1Re3111</option>
+                <option value="cquqd1Re3112">cquqd1Re3112</option>
+                <option value="cquqd1Re3113">cquqd1Re3113</option>
+                <option value="cquqd1Re3121">cquqd1Re3121</option>
+                <option value="cquqd1Re3122">cquqd1Re3122</option>
+                <option value="cquqd1Re3123">cquqd1Re3123</option>
+                <option value="cquqd1Re3131">cquqd1Re3131</option>
+                <option value="cquqd1Re3132">cquqd1Re3132</option>
+                <option value="cquqd1Re3133">cquqd1Re3133</option>
+                <option value="cquqd1Re3211">cquqd1Re3211</option>
+                <option value="cquqd1Re3212">cquqd1Re3212</option>
+                <option value="cquqd1Re3213">cquqd1Re3213</option>
+                <option value="cquqd1Re3221">cquqd1Re3221</option>
+                <option value="cquqd1Re3222">cquqd1Re3222</option>
+                <option value="cquqd1Re3223">cquqd1Re3223</option>
+                <option value="cquqd1Re3231">cquqd1Re3231</option>
+                <option value="cquqd1Re3232">cquqd1Re3232</option>
+                <option value="cquqd1Re3233">cquqd1Re3233</option>
+                <option value="cquqd8Re1111">cquqd8Re1111</option>
+                <option value="cquqd8Re1112">cquqd8Re1112</option>
+                <option value="cquqd8Re1113">cquqd8Re1113</option>
+                <option value="cquqd8Re1121">cquqd8Re1121</option>
+                <option value="cquqd8Re1122">cquqd8Re1122</option>
+                <option value="cquqd8Re1123">cquqd8Re1123</option>
+                <option value="cquqd8Re1131">cquqd8Re1131</option>
+                <option value="cquqd8Re1132">cquqd8Re1132</option>
+                <option value="cquqd8Re1133">cquqd8Re1133</option>
+                <option value="cquqd8Re2211">cquqd8Re2211</option>
+                <option value="cquqd8Re2212">cquqd8Re2212</option>
+                <option value="cquqd8Re2213">cquqd8Re2213</option>
+                <option value="cquqd8Re2221">cquqd8Re2221</option>
+                <option value="cquqd8Re2222">cquqd8Re2222</option>
+                <option value="cquqd8Re2223">cquqd8Re2223</option>
+                <option value="cquqd8Re2231">cquqd8Re2231</option>
+                <option value="cquqd8Re2232">cquqd8Re2232</option>
+                <option value="cquqd8Re2233">cquqd8Re2233</option>
+                <option value="cquqd8Re3311">cquqd8Re3311</option>
+                <option value="cquqd8Re3312">cquqd8Re3312</option>
+                <option value="cquqd8Re3313">cquqd8Re3313</option>
+                <option value="cquqd8Re3321">cquqd8Re3321</option>
+                <option value="cquqd8Re3322">cquqd8Re3322</option>
+                <option value="cquqd8Re3323">cquqd8Re3323</option>
+                <option value="cquqd8Re3331">cquqd8Re3331</option>
+                <option value="cquqd8Re3332">cquqd8Re3332</option>
+                <option value="cquqd8Re3333">cquqd8Re3333</option>
+                <option value="cquqd8Re1211">cquqd8Re1211</option>
+                <option value="cquqd8Re1212">cquqd8Re1212</option>
+                <option value="cquqd8Re1213">cquqd8Re1213</option>
+                <option value="cquqd8Re1221">cquqd8Re1221</option>
+                <option value="cquqd8Re1222">cquqd8Re1222</option>
+                <option value="cquqd8Re1223">cquqd8Re1223</option>
+                <option value="cquqd8Re1231">cquqd8Re1231</option>
+                <option value="cquqd8Re1232">cquqd8Re1232</option>
+                <option value="cquqd8Re1233">cquqd8Re1233</option>
+                <option value="cquqd8Re1311">cquqd8Re1311</option>
+                <option value="cquqd8Re1312">cquqd8Re1312</option>
+                <option value="cquqd8Re1313">cquqd8Re1313</option>
+                <option value="cquqd8Re1321">cquqd8Re1321</option>
+                <option value="cquqd8Re1322">cquqd8Re1322</option>
+                <option value="cquqd8Re1323">cquqd8Re1323</option>
+                <option value="cquqd8Re1331">cquqd8Re1331</option>
+                <option value="cquqd8Re1332">cquqd8Re1332</option>
+                <option value="cquqd8Re1333">cquqd8Re1333</option>
+                <option value="cquqd8Re2311">cquqd8Re2311</option>
+                <option value="cquqd8Re2312">cquqd8Re2312</option>
+                <option value="cquqd8Re2313">cquqd8Re2313</option>
+                <option value="cquqd8Re2321">cquqd8Re2321</option>
+                <option value="cquqd8Re2322">cquqd8Re2322</option>
+                <option value="cquqd8Re2323">cquqd8Re2323</option>
+                <option value="cquqd8Re2331">cquqd8Re2331</option>
+                <option value="cquqd8Re2332">cquqd8Re2332</option>
+                <option value="cquqd8Re2333">cquqd8Re2333</option>
+                <option value="cquqd8Re2111">cquqd8Re2111</option>
+                <option value="cquqd8Re2112">cquqd8Re2112</option>
+                <option value="cquqd8Re2113">cquqd8Re2113</option>
+                <option value="cquqd8Re2121">cquqd8Re2121</option>
+                <option value="cquqd8Re2122">cquqd8Re2122</option>
+                <option value="cquqd8Re2123">cquqd8Re2123</option>
+                <option value="cquqd8Re2131">cquqd8Re2131</option>
+                <option value="cquqd8Re2132">cquqd8Re2132</option>
+                <option value="cquqd8Re2133">cquqd8Re2133</option>
+                <option value="cquqd8Re3111">cquqd8Re3111</option>
+                <option value="cquqd8Re3112">cquqd8Re3112</option>
+                <option value="cquqd8Re3113">cquqd8Re3113</option>
+                <option value="cquqd8Re3121">cquqd8Re3121</option>
+                <option value="cquqd8Re3122">cquqd8Re3122</option>
+                <option value="cquqd8Re3123">cquqd8Re3123</option>
+                <option value="cquqd8Re3131">cquqd8Re3131</option>
+                <option value="cquqd8Re3132">cquqd8Re3132</option>
+                <option value="cquqd8Re3133">cquqd8Re3133</option>
+                <option value="cquqd8Re3211">cquqd8Re3211</option>
+                <option value="cquqd8Re3212">cquqd8Re3212</option>
+                <option value="cquqd8Re3213">cquqd8Re3213</option>
+                <option value="cquqd8Re3221">cquqd8Re3221</option>
+                <option value="cquqd8Re3222">cquqd8Re3222</option>
+                <option value="cquqd8Re3223">cquqd8Re3223</option>
+                <option value="cquqd8Re3231">cquqd8Re3231</option>
+                <option value="cquqd8Re3232">cquqd8Re3232</option>
+                <option value="cquqd8Re3233">cquqd8Re3233</option>
+                <option value="clequ1Re1111">clequ1Re1111</option>
+                <option value="clequ1Re1112">clequ1Re1112</option>
+                <option value="clequ1Re1113">clequ1Re1113</option>
+                <option value="clequ1Re1121">clequ1Re1121</option>
+                <option value="clequ1Re1122">clequ1Re1122</option>
+                <option value="clequ1Re1123">clequ1Re1123</option>
+                <option value="clequ1Re1131">clequ1Re1131</option>
+                <option value="clequ1Re1132">clequ1Re1132</option>
+                <option value="clequ1Re1133">clequ1Re1133</option>
+                <option value="clequ1Re2211">clequ1Re2211</option>
+                <option value="clequ1Re2212">clequ1Re2212</option>
+                <option value="clequ1Re2213">clequ1Re2213</option>
+                <option value="clequ1Re2221">clequ1Re2221</option>
+                <option value="clequ1Re2222">clequ1Re2222</option>
+                <option value="clequ1Re2223">clequ1Re2223</option>
+                <option value="clequ1Re2231">clequ1Re2231</option>
+                <option value="clequ1Re2232">clequ1Re2232</option>
+                <option value="clequ1Re2233">clequ1Re2233</option>
+                <option value="clequ1Re3311">clequ1Re3311</option>
+                <option value="clequ1Re3312">clequ1Re3312</option>
+                <option value="clequ1Re3313">clequ1Re3313</option>
+                <option value="clequ1Re3321">clequ1Re3321</option>
+                <option value="clequ1Re3322">clequ1Re3322</option>
+                <option value="clequ1Re3323">clequ1Re3323</option>
+                <option value="clequ1Re3331">clequ1Re3331</option>
+                <option value="clequ1Re3332">clequ1Re3332</option>
+                <option value="clequ1Re3333">clequ1Re3333</option>
+                <option value="clequ1Re1211">clequ1Re1211</option>
+                <option value="clequ1Re1212">clequ1Re1212</option>
+                <option value="clequ1Re1213">clequ1Re1213</option>
+                <option value="clequ1Re1221">clequ1Re1221</option>
+                <option value="clequ1Re1222">clequ1Re1222</option>
+                <option value="clequ1Re1223">clequ1Re1223</option>
+                <option value="clequ1Re1231">clequ1Re1231</option>
+                <option value="clequ1Re1232">clequ1Re1232</option>
+                <option value="clequ1Re1233">clequ1Re1233</option>
+                <option value="clequ1Re1311">clequ1Re1311</option>
+                <option value="clequ1Re1312">clequ1Re1312</option>
+                <option value="clequ1Re1313">clequ1Re1313</option>
+                <option value="clequ1Re1321">clequ1Re1321</option>
+                <option value="clequ1Re1322">clequ1Re1322</option>
+                <option value="clequ1Re1323">clequ1Re1323</option>
+                <option value="clequ1Re1331">clequ1Re1331</option>
+                <option value="clequ1Re1332">clequ1Re1332</option>
+                <option value="clequ1Re1333">clequ1Re1333</option>
+                <option value="clequ1Re2311">clequ1Re2311</option>
+                <option value="clequ1Re2312">clequ1Re2312</option>
+                <option value="clequ1Re2313">clequ1Re2313</option>
+                <option value="clequ1Re2321">clequ1Re2321</option>
+                <option value="clequ1Re2322">clequ1Re2322</option>
+                <option value="clequ1Re2323">clequ1Re2323</option>
+                <option value="clequ1Re2331">clequ1Re2331</option>
+                <option value="clequ1Re2332">clequ1Re2332</option>
+                <option value="clequ1Re2333">clequ1Re2333</option>
+                <option value="clequ1Re2111">clequ1Re2111</option>
+                <option value="clequ1Re2112">clequ1Re2112</option>
+                <option value="clequ1Re2113">clequ1Re2113</option>
+                <option value="clequ1Re2121">clequ1Re2121</option>
+                <option value="clequ1Re2122">clequ1Re2122</option>
+                <option value="clequ1Re2123">clequ1Re2123</option>
+                <option value="clequ1Re2131">clequ1Re2131</option>
+                <option value="clequ1Re2132">clequ1Re2132</option>
+                <option value="clequ1Re2133">clequ1Re2133</option>
+                <option value="clequ1Re3111">clequ1Re3111</option>
+                <option value="clequ1Re3112">clequ1Re3112</option>
+                <option value="clequ1Re3113">clequ1Re3113</option>
+                <option value="clequ1Re3121">clequ1Re3121</option>
+                <option value="clequ1Re3122">clequ1Re3122</option>
+                <option value="clequ1Re3123">clequ1Re3123</option>
+                <option value="clequ1Re3131">clequ1Re3131</option>
+                <option value="clequ1Re3132">clequ1Re3132</option>
+                <option value="clequ1Re3133">clequ1Re3133</option>
+                <option value="clequ1Re3211">clequ1Re3211</option>
+                <option value="clequ1Re3212">clequ1Re3212</option>
+                <option value="clequ1Re3213">clequ1Re3213</option>
+                <option value="clequ1Re3221">clequ1Re3221</option>
+                <option value="clequ1Re3222">clequ1Re3222</option>
+                <option value="clequ1Re3223">clequ1Re3223</option>
+                <option value="clequ1Re3231">clequ1Re3231</option>
+                <option value="clequ1Re3232">clequ1Re3232</option>
+                <option value="clequ1Re3233">clequ1Re3233</option>
+                <option value="clequ3Re1111">clequ3Re1111</option>
+                <option value="clequ3Re1112">clequ3Re1112</option>
+                <option value="clequ3Re1113">clequ3Re1113</option>
+                <option value="clequ3Re1121">clequ3Re1121</option>
+                <option value="clequ3Re1122">clequ3Re1122</option>
+                <option value="clequ3Re1123">clequ3Re1123</option>
+                <option value="clequ3Re1131">clequ3Re1131</option>
+                <option value="clequ3Re1132">clequ3Re1132</option>
+                <option value="clequ3Re1133">clequ3Re1133</option>
+                <option value="clequ3Re2211">clequ3Re2211</option>
+                <option value="clequ3Re2212">clequ3Re2212</option>
+                <option value="clequ3Re2213">clequ3Re2213</option>
+                <option value="clequ3Re2221">clequ3Re2221</option>
+                <option value="clequ3Re2222">clequ3Re2222</option>
+                <option value="clequ3Re2223">clequ3Re2223</option>
+                <option value="clequ3Re2231">clequ3Re2231</option>
+                <option value="clequ3Re2232">clequ3Re2232</option>
+                <option value="clequ3Re2233">clequ3Re2233</option>
+                <option value="clequ3Re3311">clequ3Re3311</option>
+                <option value="clequ3Re3312">clequ3Re3312</option>
+                <option value="clequ3Re3313">clequ3Re3313</option>
+                <option value="clequ3Re3321">clequ3Re3321</option>
+                <option value="clequ3Re3322">clequ3Re3322</option>
+                <option value="clequ3Re3323">clequ3Re3323</option>
+                <option value="clequ3Re3331">clequ3Re3331</option>
+                <option value="clequ3Re3332">clequ3Re3332</option>
+                <option value="clequ3Re3333">clequ3Re3333</option>
+                <option value="clequ3Re1211">clequ3Re1211</option>
+                <option value="clequ3Re1212">clequ3Re1212</option>
+                <option value="clequ3Re1213">clequ3Re1213</option>
+                <option value="clequ3Re1221">clequ3Re1221</option>
+                <option value="clequ3Re1222">clequ3Re1222</option>
+                <option value="clequ3Re1223">clequ3Re1223</option>
+                <option value="clequ3Re1231">clequ3Re1231</option>
+                <option value="clequ3Re1232">clequ3Re1232</option>
+                <option value="clequ3Re1233">clequ3Re1233</option>
+                <option value="clequ3Re1311">clequ3Re1311</option>
+                <option value="clequ3Re1312">clequ3Re1312</option>
+                <option value="clequ3Re1313">clequ3Re1313</option>
+                <option value="clequ3Re1321">clequ3Re1321</option>
+                <option value="clequ3Re1322">clequ3Re1322</option>
+                <option value="clequ3Re1323">clequ3Re1323</option>
+                <option value="clequ3Re1331">clequ3Re1331</option>
+                <option value="clequ3Re1332">clequ3Re1332</option>
+                <option value="clequ3Re1333">clequ3Re1333</option>
+                <option value="clequ3Re2311">clequ3Re2311</option>
+                <option value="clequ3Re2312">clequ3Re2312</option>
+                <option value="clequ3Re2313">clequ3Re2313</option>
+                <option value="clequ3Re2321">clequ3Re2321</option>
+                <option value="clequ3Re2322">clequ3Re2322</option>
+                <option value="clequ3Re2323">clequ3Re2323</option>
+                <option value="clequ3Re2331">clequ3Re2331</option>
+                <option value="clequ3Re2332">clequ3Re2332</option>
+                <option value="clequ3Re2333">clequ3Re2333</option>
+                <option value="clequ3Re2111">clequ3Re2111</option>
+                <option value="clequ3Re2112">clequ3Re2112</option>
+                <option value="clequ3Re2113">clequ3Re2113</option>
+                <option value="clequ3Re2121">clequ3Re2121</option>
+                <option value="clequ3Re2122">clequ3Re2122</option>
+                <option value="clequ3Re2123">clequ3Re2123</option>
+                <option value="clequ3Re2131">clequ3Re2131</option>
+                <option value="clequ3Re2132">clequ3Re2132</option>
+                <option value="clequ3Re2133">clequ3Re2133</option>
+                <option value="clequ3Re3111">clequ3Re3111</option>
+                <option value="clequ3Re3112">clequ3Re3112</option>
+                <option value="clequ3Re3113">clequ3Re3113</option>
+                <option value="clequ3Re3121">clequ3Re3121</option>
+                <option value="clequ3Re3122">clequ3Re3122</option>
+                <option value="clequ3Re3123">clequ3Re3123</option>
+                <option value="clequ3Re3131">clequ3Re3131</option>
+                <option value="clequ3Re3132">clequ3Re3132</option>
+                <option value="clequ3Re3133">clequ3Re3133</option>
+                <option value="clequ3Re3211">clequ3Re3211</option>
+                <option value="clequ3Re3212">clequ3Re3212</option>
+                <option value="clequ3Re3213">clequ3Re3213</option>
+                <option value="clequ3Re3221">clequ3Re3221</option>
+                <option value="clequ3Re3222">clequ3Re3222</option>
+                <option value="clequ3Re3223">clequ3Re3223</option>
+                <option value="clequ3Re3231">clequ3Re3231</option>
+                <option value="clequ3Re3232">clequ3Re3232</option>
+                <option value="clequ3Re3233">clequ3Re3233</option>
+                <option value="cGtil">cGtil</option>
+                <option value="cWtil">cWtil</option>
+                <option value="cHGtil">cHGtil</option>
+                <option value="cHWtil">cHWtil</option>
+                <option value="cHBtil">cHBtil</option>
+                <option value="cHWBtil">cHWBtil</option>
+                <option value="ceHIm22">ceHIm22</option>
+                <option value="ceHIm11">ceHIm11</option>
+                <option value="ceHIm33">ceHIm33</option>
+                <option value="ceHIm12">ceHIm12</option>
+                <option value="ceHIm13">ceHIm13</option>
+                <option value="ceHIm23">ceHIm23</option>
+                <option value="ceHIm21">ceHIm21</option>
+                <option value="ceHIm31">ceHIm31</option>
+                <option value="ceHIm32">ceHIm32</option>
+                <option value="cuHIm11">cuHIm11</option>
+                <option value="cuHIm22">cuHIm22</option>
+                <option value="cuHIm33">cuHIm33</option>
+                <option value="cuHIm12">cuHIm12</option>
+                <option value="cuHIm13">cuHIm13</option>
+                <option value="cuHIm23">cuHIm23</option>
+                <option value="cuHIm21">cuHIm21</option>
+                <option value="cuHIm31">cuHIm31</option>
+                <option value="cuHIm32">cuHIm32</option>
+                <option value="cdHIm11">cdHIm11</option>
+                <option value="cdHIm22">cdHIm22</option>
+                <option value="cdHIm33">cdHIm33</option>
+                <option value="cdHIm12">cdHIm12</option>
+                <option value="cdHIm13">cdHIm13</option>
+                <option value="cdHIm23">cdHIm23</option>
+                <option value="cdHIm21">cdHIm21</option>
+                <option value="cdHIm31">cdHIm31</option>
+                <option value="cdHIm32">cdHIm32</option>
+                <option value="ceWIm11">ceWIm11</option>
+                <option value="ceWIm22">ceWIm22</option>
+                <option value="ceWIm33">ceWIm33</option>
+                <option value="ceWIm12">ceWIm12</option>
+                <option value="ceWIm13">ceWIm13</option>
+                <option value="ceWIm23">ceWIm23</option>
+                <option value="ceWIm21">ceWIm21</option>
+                <option value="ceWIm31">ceWIm31</option>
+                <option value="ceWIm32">ceWIm32</option>
+                <option value="ceBIm11">ceBIm11</option>
+                <option value="ceBIm22">ceBIm22</option>
+                <option value="ceBIm33">ceBIm33</option>
+                <option value="ceBIm12">ceBIm12</option>
+                <option value="ceBIm13">ceBIm13</option>
+                <option value="ceBIm23">ceBIm23</option>
+                <option value="ceBIm21">ceBIm21</option>
+                <option value="ceBIm31">ceBIm31</option>
+                <option value="ceBIm32">ceBIm32</option>
+                <option value="cuGIm11">cuGIm11</option>
+                <option value="cuGIm22">cuGIm22</option>
+                <option value="cuGIm33">cuGIm33</option>
+                <option value="cuGIm12">cuGIm12</option>
+                <option value="cuGIm13">cuGIm13</option>
+                <option value="cuGIm23">cuGIm23</option>
+                <option value="cuGIm21">cuGIm21</option>
+                <option value="cuGIm31">cuGIm31</option>
+                <option value="cuGIm32">cuGIm32</option>
+                <option value="cuWIm11">cuWIm11</option>
+                <option value="cuWIm22">cuWIm22</option>
+                <option value="cuWIm33">cuWIm33</option>
+                <option value="cuWIm12">cuWIm12</option>
+                <option value="cuWIm13">cuWIm13</option>
+                <option value="cuWIm23">cuWIm23</option>
+                <option value="cuWIm21">cuWIm21</option>
+                <option value="cuWIm31">cuWIm31</option>
+                <option value="cuWIm32">cuWIm32</option>
+                <option value="cuBIm11">cuBIm11</option>
+                <option value="cuBIm22">cuBIm22</option>
+                <option value="cuBIm33">cuBIm33</option>
+                <option value="cuBIm12">cuBIm12</option>
+                <option value="cuBIm13">cuBIm13</option>
+                <option value="cuBIm23">cuBIm23</option>
+                <option value="cuBIm21">cuBIm21</option>
+                <option value="cuBIm31">cuBIm31</option>
+                <option value="cuBIm32">cuBIm32</option>
+                <option value="cdGIm11">cdGIm11</option>
+                <option value="cdGIm22">cdGIm22</option>
+                <option value="cdGIm33">cdGIm33</option>
+                <option value="cdGIm12">cdGIm12</option>
+                <option value="cdGIm13">cdGIm13</option>
+                <option value="cdGIm23">cdGIm23</option>
+                <option value="cdGIm21">cdGIm21</option>
+                <option value="cdGIm31">cdGIm31</option>
+                <option value="cdGIm32">cdGIm32</option>
+                <option value="cdWIm11">cdWIm11</option>
+                <option value="cdWIm22">cdWIm22</option>
+                <option value="cdWIm33">cdWIm33</option>
+                <option value="cdWIm12">cdWIm12</option>
+                <option value="cdWIm13">cdWIm13</option>
+                <option value="cdWIm23">cdWIm23</option>
+                <option value="cdWIm21">cdWIm21</option>
+                <option value="cdWIm31">cdWIm31</option>
+                <option value="cdWIm32">cdWIm32</option>
+                <option value="cdBIm11">cdBIm11</option>
+                <option value="cdBIm22">cdBIm22</option>
+                <option value="cdBIm33">cdBIm33</option>
+                <option value="cdBIm12">cdBIm12</option>
+                <option value="cdBIm13">cdBIm13</option>
+                <option value="cdBIm23">cdBIm23</option>
+                <option value="cdBIm21">cdBIm21</option>
+                <option value="cdBIm31">cdBIm31</option>
+                <option value="cdBIm32">cdBIm32</option>
+                <option value="cHl1Im12">cHl1Im12</option>
+                <option value="cHl1Im13">cHl1Im13</option>
+                <option value="cHl1Im23">cHl1Im23</option>
+                <option value="cHl3Im12">cHl3Im12</option>
+                <option value="cHl3Im13">cHl3Im13</option>
+                <option value="cHl3Im23">cHl3Im23</option>
+                <option value="cHeIm12">cHeIm12</option>
+                <option value="cHeIm13">cHeIm13</option>
+                <option value="cHeIm23">cHeIm23</option>
+                <option value="cHq1Im12">cHq1Im12</option>
+                <option value="cHq1Im13">cHq1Im13</option>
+                <option value="cHq1Im23">cHq1Im23</option>
+                <option value="cHq3Im12">cHq3Im12</option>
+                <option value="cHq3Im13">cHq3Im13</option>
+                <option value="cHq3Im23">cHq3Im23</option>
+                <option value="cHuIm12">cHuIm12</option>
+                <option value="cHuIm13">cHuIm13</option>
+                <option value="cHuIm23">cHuIm23</option>
+                <option value="cHdIm12">cHdIm12</option>
+                <option value="cHdIm13">cHdIm13</option>
+                <option value="cHdIm23">cHdIm23</option>
+                <option value="cHudIm11">cHudIm11</option>
+                <option value="cHudIm22">cHudIm22</option>
+                <option value="cHudIm33">cHudIm33</option>
+                <option value="cHudIm12">cHudIm12</option>
+                <option value="cHudIm13">cHudIm13</option>
+                <option value="cHudIm23">cHudIm23</option>
+                <option value="cHudIm21">cHudIm21</option>
+                <option value="cHudIm31">cHudIm31</option>
+                <option value="cHudIm32">cHudIm32</option>
+                <option value="cllIm1112">cllIm1112</option>
+                <option value="cllIm1113">cllIm1113</option>
+                <option value="cllIm1123">cllIm1123</option>
+                <option value="cllIm1212">cllIm1212</option>
+                <option value="cllIm1213">cllIm1213</option>
+                <option value="cllIm1231">cllIm1231</option>
+                <option value="cllIm1222">cllIm1222</option>
+                <option value="cllIm1223">cllIm1223</option>
+                <option value="cllIm1232">cllIm1232</option>
+                <option value="cllIm1233">cllIm1233</option>
+                <option value="cllIm1313">cllIm1313</option>
+                <option value="cllIm1322">cllIm1322</option>
+                <option value="cllIm1332">cllIm1332</option>
+                <option value="cllIm1323">cllIm1323</option>
+                <option value="cllIm1333">cllIm1333</option>
+                <option value="cllIm2223">cllIm2223</option>
+                <option value="cllIm2323">cllIm2323</option>
+                <option value="cllIm3323">cllIm3323</option>
+                <option value="cqq1Im1112">cqq1Im1112</option>
+                <option value="cqq1Im1113">cqq1Im1113</option>
+                <option value="cqq1Im1123">cqq1Im1123</option>
+                <option value="cqq1Im1212">cqq1Im1212</option>
+                <option value="cqq1Im1213">cqq1Im1213</option>
+                <option value="cqq1Im1231">cqq1Im1231</option>
+                <option value="cqq1Im1222">cqq1Im1222</option>
+                <option value="cqq1Im1223">cqq1Im1223</option>
+                <option value="cqq1Im1232">cqq1Im1232</option>
+                <option value="cqq1Im1233">cqq1Im1233</option>
+                <option value="cqq1Im1313">cqq1Im1313</option>
+                <option value="cqq1Im1322">cqq1Im1322</option>
+                <option value="cqq1Im1332">cqq1Im1332</option>
+                <option value="cqq1Im1323">cqq1Im1323</option>
+                <option value="cqq1Im1333">cqq1Im1333</option>
+                <option value="cqq1Im2223">cqq1Im2223</option>
+                <option value="cqq1Im2323">cqq1Im2323</option>
+                <option value="cqq1Im3323">cqq1Im3323</option>
+                <option value="cqq3Im1112">cqq3Im1112</option>
+                <option value="cqq3Im1113">cqq3Im1113</option>
+                <option value="cqq3Im1123">cqq3Im1123</option>
+                <option value="cqq3Im1212">cqq3Im1212</option>
+                <option value="cqq3Im1213">cqq3Im1213</option>
+                <option value="cqq3Im1231">cqq3Im1231</option>
+                <option value="cqq3Im1222">cqq3Im1222</option>
+                <option value="cqq3Im1223">cqq3Im1223</option>
+                <option value="cqq3Im1232">cqq3Im1232</option>
+                <option value="cqq3Im1233">cqq3Im1233</option>
+                <option value="cqq3Im1313">cqq3Im1313</option>
+                <option value="cqq3Im1322">cqq3Im1322</option>
+                <option value="cqq3Im1332">cqq3Im1332</option>
+                <option value="cqq3Im1323">cqq3Im1323</option>
+                <option value="cqq3Im1333">cqq3Im1333</option>
+                <option value="cqq3Im2223">cqq3Im2223</option>
+                <option value="cqq3Im2323">cqq3Im2323</option>
+                <option value="cqq3Im3323">cqq3Im3323</option>
+                <option value="cuuIm1112">cuuIm1112</option>
+                <option value="cuuIm1113">cuuIm1113</option>
+                <option value="cuuIm1123">cuuIm1123</option>
+                <option value="cuuIm1212">cuuIm1212</option>
+                <option value="cuuIm1213">cuuIm1213</option>
+                <option value="cuuIm1231">cuuIm1231</option>
+                <option value="cuuIm1222">cuuIm1222</option>
+                <option value="cuuIm1223">cuuIm1223</option>
+                <option value="cuuIm1232">cuuIm1232</option>
+                <option value="cuuIm1233">cuuIm1233</option>
+                <option value="cuuIm1313">cuuIm1313</option>
+                <option value="cuuIm1322">cuuIm1322</option>
+                <option value="cuuIm1332">cuuIm1332</option>
+                <option value="cuuIm1323">cuuIm1323</option>
+                <option value="cuuIm1333">cuuIm1333</option>
+                <option value="cuuIm2223">cuuIm2223</option>
+                <option value="cuuIm2323">cuuIm2323</option>
+                <option value="cuuIm3323">cuuIm3323</option>
+                <option value="cddIm1112">cddIm1112</option>
+                <option value="cddIm1113">cddIm1113</option>
+                <option value="cddIm1123">cddIm1123</option>
+                <option value="cddIm1212">cddIm1212</option>
+                <option value="cddIm1213">cddIm1213</option>
+                <option value="cddIm1231">cddIm1231</option>
+                <option value="cddIm1222">cddIm1222</option>
+                <option value="cddIm1223">cddIm1223</option>
+                <option value="cddIm1232">cddIm1232</option>
+                <option value="cddIm1233">cddIm1233</option>
+                <option value="cddIm1313">cddIm1313</option>
+                <option value="cddIm1322">cddIm1322</option>
+                <option value="cddIm1332">cddIm1332</option>
+                <option value="cddIm1323">cddIm1323</option>
+                <option value="cddIm1333">cddIm1333</option>
+                <option value="cddIm2223">cddIm2223</option>
+                <option value="cddIm2323">cddIm2323</option>
+                <option value="cddIm3323">cddIm3323</option>
+                <option value="ceeIm1112">ceeIm1112</option>
+                <option value="ceeIm1113">ceeIm1113</option>
+                <option value="ceeIm1123">ceeIm1123</option>
+                <option value="ceeIm1212">ceeIm1212</option>
+                <option value="ceeIm1213">ceeIm1213</option>
+                <option value="ceeIm1222">ceeIm1222</option>
+                <option value="ceeIm1232">ceeIm1232</option>
+                <option value="ceeIm1233">ceeIm1233</option>
+                <option value="ceeIm1313">ceeIm1313</option>
+                <option value="ceeIm1322">ceeIm1322</option>
+                <option value="ceeIm1323">ceeIm1323</option>
+                <option value="ceeIm1333">ceeIm1333</option>
+                <option value="ceeIm2223">ceeIm2223</option>
+                <option value="ceeIm2323">ceeIm2323</option>
+                <option value="ceeIm3323">ceeIm3323</option>
+                <option value="clq1Im1112">clq1Im1112</option>
+                <option value="clq1Im1113">clq1Im1113</option>
+                <option value="clq1Im1123">clq1Im1123</option>
+                <option value="clq1Im1211">clq1Im1211</option>
+                <option value="clq1Im1212">clq1Im1212</option>
+                <option value="clq1Im1221">clq1Im1221</option>
+                <option value="clq1Im1213">clq1Im1213</option>
+                <option value="clq1Im1231">clq1Im1231</option>
+                <option value="clq1Im1222">clq1Im1222</option>
+                <option value="clq1Im1223">clq1Im1223</option>
+                <option value="clq1Im1232">clq1Im1232</option>
+                <option value="clq1Im1233">clq1Im1233</option>
+                <option value="clq1Im1311">clq1Im1311</option>
+                <option value="clq1Im1312">clq1Im1312</option>
+                <option value="clq1Im1313">clq1Im1313</option>
+                <option value="clq1Im1331">clq1Im1331</option>
+                <option value="clq1Im1321">clq1Im1321</option>
+                <option value="clq1Im1322">clq1Im1322</option>
+                <option value="clq1Im1332">clq1Im1332</option>
+                <option value="clq1Im1323">clq1Im1323</option>
+                <option value="clq1Im1333">clq1Im1333</option>
+                <option value="clq1Im2212">clq1Im2212</option>
+                <option value="clq1Im2213">clq1Im2213</option>
+                <option value="clq1Im2223">clq1Im2223</option>
+                <option value="clq1Im2311">clq1Im2311</option>
+                <option value="clq1Im2312">clq1Im2312</option>
+                <option value="clq1Im2313">clq1Im2313</option>
+                <option value="clq1Im2321">clq1Im2321</option>
+                <option value="clq1Im2322">clq1Im2322</option>
+                <option value="clq1Im2323">clq1Im2323</option>
+                <option value="clq1Im2331">clq1Im2331</option>
+                <option value="clq1Im2332">clq1Im2332</option>
+                <option value="clq1Im2333">clq1Im2333</option>
+                <option value="clq1Im3312">clq1Im3312</option>
+                <option value="clq1Im3313">clq1Im3313</option>
+                <option value="clq1Im3323">clq1Im3323</option>
+                <option value="clq3Im1112">clq3Im1112</option>
+                <option value="clq3Im1113">clq3Im1113</option>
+                <option value="clq3Im1123">clq3Im1123</option>
+                <option value="clq3Im1211">clq3Im1211</option>
+                <option value="clq3Im1212">clq3Im1212</option>
+                <option value="clq3Im1221">clq3Im1221</option>
+                <option value="clq3Im1213">clq3Im1213</option>
+                <option value="clq3Im1231">clq3Im1231</option>
+                <option value="clq3Im1222">clq3Im1222</option>
+                <option value="clq3Im1223">clq3Im1223</option>
+                <option value="clq3Im1232">clq3Im1232</option>
+                <option value="clq3Im1233">clq3Im1233</option>
+                <option value="clq3Im1311">clq3Im1311</option>
+                <option value="clq3Im1312">clq3Im1312</option>
+                <option value="clq3Im1313">clq3Im1313</option>
+                <option value="clq3Im1331">clq3Im1331</option>
+                <option value="clq3Im1321">clq3Im1321</option>
+                <option value="clq3Im1322">clq3Im1322</option>
+                <option value="clq3Im1332">clq3Im1332</option>
+                <option value="clq3Im1323">clq3Im1323</option>
+                <option value="clq3Im1333">clq3Im1333</option>
+                <option value="clq3Im2212">clq3Im2212</option>
+                <option value="clq3Im2213">clq3Im2213</option>
+                <option value="clq3Im2223">clq3Im2223</option>
+                <option value="clq3Im2311">clq3Im2311</option>
+                <option value="clq3Im2312">clq3Im2312</option>
+                <option value="clq3Im2313">clq3Im2313</option>
+                <option value="clq3Im2321">clq3Im2321</option>
+                <option value="clq3Im2322">clq3Im2322</option>
+                <option value="clq3Im2323">clq3Im2323</option>
+                <option value="clq3Im2331">clq3Im2331</option>
+                <option value="clq3Im2332">clq3Im2332</option>
+                <option value="clq3Im2333">clq3Im2333</option>
+                <option value="clq3Im3312">clq3Im3312</option>
+                <option value="clq3Im3313">clq3Im3313</option>
+                <option value="clq3Im3323">clq3Im3323</option>
+                <option value="ceuIm1112">ceuIm1112</option>
+                <option value="ceuIm1113">ceuIm1113</option>
+                <option value="ceuIm1123">ceuIm1123</option>
+                <option value="ceuIm1211">ceuIm1211</option>
+                <option value="ceuIm1212">ceuIm1212</option>
+                <option value="ceuIm1221">ceuIm1221</option>
+                <option value="ceuIm1213">ceuIm1213</option>
+                <option value="ceuIm1231">ceuIm1231</option>
+                <option value="ceuIm1222">ceuIm1222</option>
+                <option value="ceuIm1223">ceuIm1223</option>
+                <option value="ceuIm1232">ceuIm1232</option>
+                <option value="ceuIm1233">ceuIm1233</option>
+                <option value="ceuIm1311">ceuIm1311</option>
+                <option value="ceuIm1312">ceuIm1312</option>
+                <option value="ceuIm1313">ceuIm1313</option>
+                <option value="ceuIm1331">ceuIm1331</option>
+                <option value="ceuIm1321">ceuIm1321</option>
+                <option value="ceuIm1322">ceuIm1322</option>
+                <option value="ceuIm1332">ceuIm1332</option>
+                <option value="ceuIm1323">ceuIm1323</option>
+                <option value="ceuIm1333">ceuIm1333</option>
+                <option value="ceuIm2212">ceuIm2212</option>
+                <option value="ceuIm2213">ceuIm2213</option>
+                <option value="ceuIm2223">ceuIm2223</option>
+                <option value="ceuIm2311">ceuIm2311</option>
+                <option value="ceuIm2312">ceuIm2312</option>
+                <option value="ceuIm2313">ceuIm2313</option>
+                <option value="ceuIm2321">ceuIm2321</option>
+                <option value="ceuIm2322">ceuIm2322</option>
+                <option value="ceuIm2323">ceuIm2323</option>
+                <option value="ceuIm2331">ceuIm2331</option>
+                <option value="ceuIm2332">ceuIm2332</option>
+                <option value="ceuIm2333">ceuIm2333</option>
+                <option value="ceuIm3312">ceuIm3312</option>
+                <option value="ceuIm3313">ceuIm3313</option>
+                <option value="ceuIm3323">ceuIm3323</option>
+                <option value="cedIm1112">cedIm1112</option>
+                <option value="cedIm1113">cedIm1113</option>
+                <option value="cedIm1123">cedIm1123</option>
+                <option value="cedIm1211">cedIm1211</option>
+                <option value="cedIm1212">cedIm1212</option>
+                <option value="cedIm1221">cedIm1221</option>
+                <option value="cedIm1213">cedIm1213</option>
+                <option value="cedIm1231">cedIm1231</option>
+                <option value="cedIm1222">cedIm1222</option>
+                <option value="cedIm1223">cedIm1223</option>
+                <option value="cedIm1232">cedIm1232</option>
+                <option value="cedIm1233">cedIm1233</option>
+                <option value="cedIm1311">cedIm1311</option>
+                <option value="cedIm1312">cedIm1312</option>
+                <option value="cedIm1313">cedIm1313</option>
+                <option value="cedIm1331">cedIm1331</option>
+                <option value="cedIm1321">cedIm1321</option>
+                <option value="cedIm1322">cedIm1322</option>
+                <option value="cedIm1332">cedIm1332</option>
+                <option value="cedIm1323">cedIm1323</option>
+                <option value="cedIm1333">cedIm1333</option>
+                <option value="cedIm2212">cedIm2212</option>
+                <option value="cedIm2213">cedIm2213</option>
+                <option value="cedIm2223">cedIm2223</option>
+                <option value="cedIm2311">cedIm2311</option>
+                <option value="cedIm2312">cedIm2312</option>
+                <option value="cedIm2313">cedIm2313</option>
+                <option value="cedIm2321">cedIm2321</option>
+                <option value="cedIm2322">cedIm2322</option>
+                <option value="cedIm2323">cedIm2323</option>
+                <option value="cedIm2331">cedIm2331</option>
+                <option value="cedIm2332">cedIm2332</option>
+                <option value="cedIm2333">cedIm2333</option>
+                <option value="cedIm3312">cedIm3312</option>
+                <option value="cedIm3313">cedIm3313</option>
+                <option value="cedIm3323">cedIm3323</option>
+                <option value="cud1Im1112">cud1Im1112</option>
+                <option value="cud1Im1113">cud1Im1113</option>
+                <option value="cud1Im1123">cud1Im1123</option>
+                <option value="cud1Im1211">cud1Im1211</option>
+                <option value="cud1Im1212">cud1Im1212</option>
+                <option value="cud1Im1221">cud1Im1221</option>
+                <option value="cud1Im1213">cud1Im1213</option>
+                <option value="cud1Im1231">cud1Im1231</option>
+                <option value="cud1Im1222">cud1Im1222</option>
+                <option value="cud1Im1223">cud1Im1223</option>
+                <option value="cud1Im1232">cud1Im1232</option>
+                <option value="cud1Im1233">cud1Im1233</option>
+                <option value="cud1Im1311">cud1Im1311</option>
+                <option value="cud1Im1312">cud1Im1312</option>
+                <option value="cud1Im1313">cud1Im1313</option>
+                <option value="cud1Im1331">cud1Im1331</option>
+                <option value="cud1Im1321">cud1Im1321</option>
+                <option value="cud1Im1322">cud1Im1322</option>
+                <option value="cud1Im1332">cud1Im1332</option>
+                <option value="cud1Im1323">cud1Im1323</option>
+                <option value="cud1Im1333">cud1Im1333</option>
+                <option value="cud1Im2212">cud1Im2212</option>
+                <option value="cud1Im2213">cud1Im2213</option>
+                <option value="cud1Im2223">cud1Im2223</option>
+                <option value="cud1Im2311">cud1Im2311</option>
+                <option value="cud1Im2312">cud1Im2312</option>
+                <option value="cud1Im2313">cud1Im2313</option>
+                <option value="cud1Im2321">cud1Im2321</option>
+                <option value="cud1Im2322">cud1Im2322</option>
+                <option value="cud1Im2323">cud1Im2323</option>
+                <option value="cud1Im2331">cud1Im2331</option>
+                <option value="cud1Im2332">cud1Im2332</option>
+                <option value="cud1Im2333">cud1Im2333</option>
+                <option value="cud1Im3312">cud1Im3312</option>
+                <option value="cud1Im3313">cud1Im3313</option>
+                <option value="cud1Im3323">cud1Im3323</option>
+                <option value="cud8Im1112">cud8Im1112</option>
+                <option value="cud8Im1113">cud8Im1113</option>
+                <option value="cud8Im1123">cud8Im1123</option>
+                <option value="cud8Im1211">cud8Im1211</option>
+                <option value="cud8Im1212">cud8Im1212</option>
+                <option value="cud8Im1221">cud8Im1221</option>
+                <option value="cud8Im1213">cud8Im1213</option>
+                <option value="cud8Im1231">cud8Im1231</option>
+                <option value="cud8Im1222">cud8Im1222</option>
+                <option value="cud8Im1223">cud8Im1223</option>
+                <option value="cud8Im1232">cud8Im1232</option>
+                <option value="cud8Im1233">cud8Im1233</option>
+                <option value="cud8Im1311">cud8Im1311</option>
+                <option value="cud8Im1312">cud8Im1312</option>
+                <option value="cud8Im1313">cud8Im1313</option>
+                <option value="cud8Im1331">cud8Im1331</option>
+                <option value="cud8Im1321">cud8Im1321</option>
+                <option value="cud8Im1322">cud8Im1322</option>
+                <option value="cud8Im1332">cud8Im1332</option>
+                <option value="cud8Im1323">cud8Im1323</option>
+                <option value="cud8Im1333">cud8Im1333</option>
+                <option value="cud8Im2212">cud8Im2212</option>
+                <option value="cud8Im2213">cud8Im2213</option>
+                <option value="cud8Im2223">cud8Im2223</option>
+                <option value="cud8Im2311">cud8Im2311</option>
+                <option value="cud8Im2312">cud8Im2312</option>
+                <option value="cud8Im2313">cud8Im2313</option>
+                <option value="cud8Im2321">cud8Im2321</option>
+                <option value="cud8Im2322">cud8Im2322</option>
+                <option value="cud8Im2323">cud8Im2323</option>
+                <option value="cud8Im2331">cud8Im2331</option>
+                <option value="cud8Im2332">cud8Im2332</option>
+                <option value="cud8Im2333">cud8Im2333</option>
+                <option value="cud8Im3312">cud8Im3312</option>
+                <option value="cud8Im3313">cud8Im3313</option>
+                <option value="cud8Im3323">cud8Im3323</option>
+                <option value="cleIm1112">cleIm1112</option>
+                <option value="cleIm1113">cleIm1113</option>
+                <option value="cleIm1123">cleIm1123</option>
+                <option value="cleIm1211">cleIm1211</option>
+                <option value="cleIm1212">cleIm1212</option>
+                <option value="cleIm1221">cleIm1221</option>
+                <option value="cleIm1213">cleIm1213</option>
+                <option value="cleIm1231">cleIm1231</option>
+                <option value="cleIm1222">cleIm1222</option>
+                <option value="cleIm1223">cleIm1223</option>
+                <option value="cleIm1232">cleIm1232</option>
+                <option value="cleIm1233">cleIm1233</option>
+                <option value="cleIm1311">cleIm1311</option>
+                <option value="cleIm1312">cleIm1312</option>
+                <option value="cleIm1313">cleIm1313</option>
+                <option value="cleIm1331">cleIm1331</option>
+                <option value="cleIm1321">cleIm1321</option>
+                <option value="cleIm1322">cleIm1322</option>
+                <option value="cleIm1332">cleIm1332</option>
+                <option value="cleIm1323">cleIm1323</option>
+                <option value="cleIm1333">cleIm1333</option>
+                <option value="cleIm2212">cleIm2212</option>
+                <option value="cleIm2213">cleIm2213</option>
+                <option value="cleIm2223">cleIm2223</option>
+                <option value="cleIm2311">cleIm2311</option>
+                <option value="cleIm2312">cleIm2312</option>
+                <option value="cleIm2313">cleIm2313</option>
+                <option value="cleIm2321">cleIm2321</option>
+                <option value="cleIm2322">cleIm2322</option>
+                <option value="cleIm2323">cleIm2323</option>
+                <option value="cleIm2331">cleIm2331</option>
+                <option value="cleIm2332">cleIm2332</option>
+                <option value="cleIm2333">cleIm2333</option>
+                <option value="cleIm3312">cleIm3312</option>
+                <option value="cleIm3313">cleIm3313</option>
+                <option value="cleIm3323">cleIm3323</option>
+                <option value="cluIm1112">cluIm1112</option>
+                <option value="cluIm1113">cluIm1113</option>
+                <option value="cluIm1123">cluIm1123</option>
+                <option value="cluIm1211">cluIm1211</option>
+                <option value="cluIm1212">cluIm1212</option>
+                <option value="cluIm1221">cluIm1221</option>
+                <option value="cluIm1213">cluIm1213</option>
+                <option value="cluIm1231">cluIm1231</option>
+                <option value="cluIm1222">cluIm1222</option>
+                <option value="cluIm1223">cluIm1223</option>
+                <option value="cluIm1232">cluIm1232</option>
+                <option value="cluIm1233">cluIm1233</option>
+                <option value="cluIm1311">cluIm1311</option>
+                <option value="cluIm1312">cluIm1312</option>
+                <option value="cluIm1313">cluIm1313</option>
+                <option value="cluIm1331">cluIm1331</option>
+                <option value="cluIm1321">cluIm1321</option>
+                <option value="cluIm1322">cluIm1322</option>
+                <option value="cluIm1332">cluIm1332</option>
+                <option value="cluIm1323">cluIm1323</option>
+                <option value="cluIm1333">cluIm1333</option>
+                <option value="cluIm2212">cluIm2212</option>
+                <option value="cluIm2213">cluIm2213</option>
+                <option value="cluIm2223">cluIm2223</option>
+                <option value="cluIm2311">cluIm2311</option>
+                <option value="cluIm2312">cluIm2312</option>
+                <option value="cluIm2313">cluIm2313</option>
+                <option value="cluIm2321">cluIm2321</option>
+                <option value="cluIm2322">cluIm2322</option>
+                <option value="cluIm2323">cluIm2323</option>
+                <option value="cluIm2331">cluIm2331</option>
+                <option value="cluIm2332">cluIm2332</option>
+                <option value="cluIm2333">cluIm2333</option>
+                <option value="cluIm3312">cluIm3312</option>
+                <option value="cluIm3313">cluIm3313</option>
+                <option value="cluIm3323">cluIm3323</option>
+                <option value="cldIm1112">cldIm1112</option>
+                <option value="cldIm1113">cldIm1113</option>
+                <option value="cldIm1123">cldIm1123</option>
+                <option value="cldIm1211">cldIm1211</option>
+                <option value="cldIm1212">cldIm1212</option>
+                <option value="cldIm1221">cldIm1221</option>
+                <option value="cldIm1213">cldIm1213</option>
+                <option value="cldIm1231">cldIm1231</option>
+                <option value="cldIm1222">cldIm1222</option>
+                <option value="cldIm1223">cldIm1223</option>
+                <option value="cldIm1232">cldIm1232</option>
+                <option value="cldIm1233">cldIm1233</option>
+                <option value="cldIm1311">cldIm1311</option>
+                <option value="cldIm1312">cldIm1312</option>
+                <option value="cldIm1313">cldIm1313</option>
+                <option value="cldIm1331">cldIm1331</option>
+                <option value="cldIm1321">cldIm1321</option>
+                <option value="cldIm1322">cldIm1322</option>
+                <option value="cldIm1332">cldIm1332</option>
+                <option value="cldIm1323">cldIm1323</option>
+                <option value="cldIm1333">cldIm1333</option>
+                <option value="cldIm2212">cldIm2212</option>
+                <option value="cldIm2213">cldIm2213</option>
+                <option value="cldIm2223">cldIm2223</option>
+                <option value="cldIm2311">cldIm2311</option>
+                <option value="cldIm2312">cldIm2312</option>
+                <option value="cldIm2313">cldIm2313</option>
+                <option value="cldIm2321">cldIm2321</option>
+                <option value="cldIm2322">cldIm2322</option>
+                <option value="cldIm2323">cldIm2323</option>
+                <option value="cldIm2331">cldIm2331</option>
+                <option value="cldIm2332">cldIm2332</option>
+                <option value="cldIm2333">cldIm2333</option>
+                <option value="cldIm3312">cldIm3312</option>
+                <option value="cldIm3313">cldIm3313</option>
+                <option value="cldIm3323">cldIm3323</option>
+                <option value="cqeIm1112">cqeIm1112</option>
+                <option value="cqeIm1113">cqeIm1113</option>
+                <option value="cqeIm1123">cqeIm1123</option>
+                <option value="cqeIm1211">cqeIm1211</option>
+                <option value="cqeIm1212">cqeIm1212</option>
+                <option value="cqeIm1221">cqeIm1221</option>
+                <option value="cqeIm1213">cqeIm1213</option>
+                <option value="cqeIm1231">cqeIm1231</option>
+                <option value="cqeIm1222">cqeIm1222</option>
+                <option value="cqeIm1223">cqeIm1223</option>
+                <option value="cqeIm1232">cqeIm1232</option>
+                <option value="cqeIm1233">cqeIm1233</option>
+                <option value="cqeIm1311">cqeIm1311</option>
+                <option value="cqeIm1312">cqeIm1312</option>
+                <option value="cqeIm1313">cqeIm1313</option>
+                <option value="cqeIm1331">cqeIm1331</option>
+                <option value="cqeIm1321">cqeIm1321</option>
+                <option value="cqeIm1322">cqeIm1322</option>
+                <option value="cqeIm1332">cqeIm1332</option>
+                <option value="cqeIm1323">cqeIm1323</option>
+                <option value="cqeIm1333">cqeIm1333</option>
+                <option value="cqeIm2212">cqeIm2212</option>
+                <option value="cqeIm2213">cqeIm2213</option>
+                <option value="cqeIm2223">cqeIm2223</option>
+                <option value="cqeIm2311">cqeIm2311</option>
+                <option value="cqeIm2312">cqeIm2312</option>
+                <option value="cqeIm2313">cqeIm2313</option>
+                <option value="cqeIm2321">cqeIm2321</option>
+                <option value="cqeIm2322">cqeIm2322</option>
+                <option value="cqeIm2323">cqeIm2323</option>
+                <option value="cqeIm2331">cqeIm2331</option>
+                <option value="cqeIm2332">cqeIm2332</option>
+                <option value="cqeIm2333">cqeIm2333</option>
+                <option value="cqeIm3312">cqeIm3312</option>
+                <option value="cqeIm3313">cqeIm3313</option>
+                <option value="cqeIm3323">cqeIm3323</option>
+                <option value="cqu1Im1112">cqu1Im1112</option>
+                <option value="cqu1Im1113">cqu1Im1113</option>
+                <option value="cqu1Im1123">cqu1Im1123</option>
+                <option value="cqu1Im1211">cqu1Im1211</option>
+                <option value="cqu1Im1212">cqu1Im1212</option>
+                <option value="cqu1Im1221">cqu1Im1221</option>
+                <option value="cqu1Im1213">cqu1Im1213</option>
+                <option value="cqu1Im1231">cqu1Im1231</option>
+                <option value="cqu1Im1222">cqu1Im1222</option>
+                <option value="cqu1Im1223">cqu1Im1223</option>
+                <option value="cqu1Im1232">cqu1Im1232</option>
+                <option value="cqu1Im1233">cqu1Im1233</option>
+                <option value="cqu1Im1311">cqu1Im1311</option>
+                <option value="cqu1Im1312">cqu1Im1312</option>
+                <option value="cqu1Im1313">cqu1Im1313</option>
+                <option value="cqu1Im1331">cqu1Im1331</option>
+                <option value="cqu1Im1321">cqu1Im1321</option>
+                <option value="cqu1Im1322">cqu1Im1322</option>
+                <option value="cqu1Im1332">cqu1Im1332</option>
+                <option value="cqu1Im1323">cqu1Im1323</option>
+                <option value="cqu1Im1333">cqu1Im1333</option>
+                <option value="cqu1Im2212">cqu1Im2212</option>
+                <option value="cqu1Im2213">cqu1Im2213</option>
+                <option value="cqu1Im2223">cqu1Im2223</option>
+                <option value="cqu1Im2311">cqu1Im2311</option>
+                <option value="cqu1Im2312">cqu1Im2312</option>
+                <option value="cqu1Im2313">cqu1Im2313</option>
+                <option value="cqu1Im2321">cqu1Im2321</option>
+                <option value="cqu1Im2322">cqu1Im2322</option>
+                <option value="cqu1Im2323">cqu1Im2323</option>
+                <option value="cqu1Im2331">cqu1Im2331</option>
+                <option value="cqu1Im2332">cqu1Im2332</option>
+                <option value="cqu1Im2333">cqu1Im2333</option>
+                <option value="cqu1Im3312">cqu1Im3312</option>
+                <option value="cqu1Im3313">cqu1Im3313</option>
+                <option value="cqu1Im3323">cqu1Im3323</option>
+                <option value="cqd1Im1112">cqd1Im1112</option>
+                <option value="cqd1Im1113">cqd1Im1113</option>
+                <option value="cqd1Im1123">cqd1Im1123</option>
+                <option value="cqd1Im1211">cqd1Im1211</option>
+                <option value="cqd1Im1212">cqd1Im1212</option>
+                <option value="cqd1Im1221">cqd1Im1221</option>
+                <option value="cqd1Im1213">cqd1Im1213</option>
+                <option value="cqd1Im1231">cqd1Im1231</option>
+                <option value="cqd1Im1222">cqd1Im1222</option>
+                <option value="cqd1Im1223">cqd1Im1223</option>
+                <option value="cqd1Im1232">cqd1Im1232</option>
+                <option value="cqd1Im1233">cqd1Im1233</option>
+                <option value="cqd1Im1311">cqd1Im1311</option>
+                <option value="cqd1Im1312">cqd1Im1312</option>
+                <option value="cqd1Im1313">cqd1Im1313</option>
+                <option value="cqd1Im1331">cqd1Im1331</option>
+                <option value="cqd1Im1321">cqd1Im1321</option>
+                <option value="cqd1Im1322">cqd1Im1322</option>
+                <option value="cqd1Im1332">cqd1Im1332</option>
+                <option value="cqd1Im1323">cqd1Im1323</option>
+                <option value="cqd1Im1333">cqd1Im1333</option>
+                <option value="cqd1Im2212">cqd1Im2212</option>
+                <option value="cqd1Im2213">cqd1Im2213</option>
+                <option value="cqd1Im2223">cqd1Im2223</option>
+                <option value="cqd1Im2311">cqd1Im2311</option>
+                <option value="cqd1Im2312">cqd1Im2312</option>
+                <option value="cqd1Im2313">cqd1Im2313</option>
+                <option value="cqd1Im2321">cqd1Im2321</option>
+                <option value="cqd1Im2322">cqd1Im2322</option>
+                <option value="cqd1Im2323">cqd1Im2323</option>
+                <option value="cqd1Im2331">cqd1Im2331</option>
+                <option value="cqd1Im2332">cqd1Im2332</option>
+                <option value="cqd1Im2333">cqd1Im2333</option>
+                <option value="cqd1Im3312">cqd1Im3312</option>
+                <option value="cqd1Im3313">cqd1Im3313</option>
+                <option value="cqd1Im3323">cqd1Im3323</option>
+                <option value="cqu8Im1112">cqu8Im1112</option>
+                <option value="cqu8Im1113">cqu8Im1113</option>
+                <option value="cqu8Im1123">cqu8Im1123</option>
+                <option value="cqu8Im1211">cqu8Im1211</option>
+                <option value="cqu8Im1212">cqu8Im1212</option>
+                <option value="cqu8Im1221">cqu8Im1221</option>
+                <option value="cqu8Im1213">cqu8Im1213</option>
+                <option value="cqu8Im1231">cqu8Im1231</option>
+                <option value="cqu8Im1222">cqu8Im1222</option>
+                <option value="cqu8Im1223">cqu8Im1223</option>
+                <option value="cqu8Im1232">cqu8Im1232</option>
+                <option value="cqu8Im1233">cqu8Im1233</option>
+                <option value="cqu8Im1311">cqu8Im1311</option>
+                <option value="cqu8Im1312">cqu8Im1312</option>
+                <option value="cqu8Im1313">cqu8Im1313</option>
+                <option value="cqu8Im1331">cqu8Im1331</option>
+                <option value="cqu8Im1321">cqu8Im1321</option>
+                <option value="cqu8Im1322">cqu8Im1322</option>
+                <option value="cqu8Im1332">cqu8Im1332</option>
+                <option value="cqu8Im1323">cqu8Im1323</option>
+                <option value="cqu8Im1333">cqu8Im1333</option>
+                <option value="cqu8Im2212">cqu8Im2212</option>
+                <option value="cqu8Im2213">cqu8Im2213</option>
+                <option value="cqu8Im2223">cqu8Im2223</option>
+                <option value="cqu8Im2311">cqu8Im2311</option>
+                <option value="cqu8Im2312">cqu8Im2312</option>
+                <option value="cqu8Im2313">cqu8Im2313</option>
+                <option value="cqu8Im2321">cqu8Im2321</option>
+                <option value="cqu8Im2322">cqu8Im2322</option>
+                <option value="cqu8Im2323">cqu8Im2323</option>
+                <option value="cqu8Im2331">cqu8Im2331</option>
+                <option value="cqu8Im2332">cqu8Im2332</option>
+                <option value="cqu8Im2333">cqu8Im2333</option>
+                <option value="cqu8Im3312">cqu8Im3312</option>
+                <option value="cqu8Im3313">cqu8Im3313</option>
+                <option value="cqu8Im3323">cqu8Im3323</option>
+                <option value="cqd8Im1112">cqd8Im1112</option>
+                <option value="cqd8Im1113">cqd8Im1113</option>
+                <option value="cqd8Im1123">cqd8Im1123</option>
+                <option value="cqd8Im1211">cqd8Im1211</option>
+                <option value="cqd8Im1212">cqd8Im1212</option>
+                <option value="cqd8Im1221">cqd8Im1221</option>
+                <option value="cqd8Im1213">cqd8Im1213</option>
+                <option value="cqd8Im1231">cqd8Im1231</option>
+                <option value="cqd8Im1222">cqd8Im1222</option>
+                <option value="cqd8Im1223">cqd8Im1223</option>
+                <option value="cqd8Im1232">cqd8Im1232</option>
+                <option value="cqd8Im1233">cqd8Im1233</option>
+                <option value="cqd8Im1311">cqd8Im1311</option>
+                <option value="cqd8Im1312">cqd8Im1312</option>
+                <option value="cqd8Im1313">cqd8Im1313</option>
+                <option value="cqd8Im1331">cqd8Im1331</option>
+                <option value="cqd8Im1321">cqd8Im1321</option>
+                <option value="cqd8Im1322">cqd8Im1322</option>
+                <option value="cqd8Im1332">cqd8Im1332</option>
+                <option value="cqd8Im1323">cqd8Im1323</option>
+                <option value="cqd8Im1333">cqd8Im1333</option>
+                <option value="cqd8Im2212">cqd8Im2212</option>
+                <option value="cqd8Im2213">cqd8Im2213</option>
+                <option value="cqd8Im2223">cqd8Im2223</option>
+                <option value="cqd8Im2311">cqd8Im2311</option>
+                <option value="cqd8Im2312">cqd8Im2312</option>
+                <option value="cqd8Im2313">cqd8Im2313</option>
+                <option value="cqd8Im2321">cqd8Im2321</option>
+                <option value="cqd8Im2322">cqd8Im2322</option>
+                <option value="cqd8Im2323">cqd8Im2323</option>
+                <option value="cqd8Im2331">cqd8Im2331</option>
+                <option value="cqd8Im2332">cqd8Im2332</option>
+                <option value="cqd8Im2333">cqd8Im2333</option>
+                <option value="cqd8Im3312">cqd8Im3312</option>
+                <option value="cqd8Im3313">cqd8Im3313</option>
+                <option value="cqd8Im3323">cqd8Im3323</option>
+                <option value="cledqIm1111">cledqIm1111</option>
+                <option value="cledqIm1211">cledqIm1211</option>
+                <option value="cledqIm1311">cledqIm1311</option>
+                <option value="cledqIm1112">cledqIm1112</option>
+                <option value="cledqIm1212">cledqIm1212</option>
+                <option value="cledqIm1312">cledqIm1312</option>
+                <option value="cledqIm1113">cledqIm1113</option>
+                <option value="cledqIm1213">cledqIm1213</option>
+                <option value="cledqIm1313">cledqIm1313</option>
+                <option value="cledqIm1121">cledqIm1121</option>
+                <option value="cledqIm1221">cledqIm1221</option>
+                <option value="cledqIm1321">cledqIm1321</option>
+                <option value="cledqIm1122">cledqIm1122</option>
+                <option value="cledqIm1222">cledqIm1222</option>
+                <option value="cledqIm1322">cledqIm1322</option>
+                <option value="cledqIm1123">cledqIm1123</option>
+                <option value="cledqIm1223">cledqIm1223</option>
+                <option value="cledqIm1323">cledqIm1323</option>
+                <option value="cledqIm1131">cledqIm1131</option>
+                <option value="cledqIm1231">cledqIm1231</option>
+                <option value="cledqIm1331">cledqIm1331</option>
+                <option value="cledqIm1132">cledqIm1132</option>
+                <option value="cledqIm1232">cledqIm1232</option>
+                <option value="cledqIm1332">cledqIm1332</option>
+                <option value="cledqIm1133">cledqIm1133</option>
+                <option value="cledqIm1233">cledqIm1233</option>
+                <option value="cledqIm1333">cledqIm1333</option>
+                <option value="cledqIm2211">cledqIm2211</option>
+                <option value="cledqIm2111">cledqIm2111</option>
+                <option value="cledqIm2311">cledqIm2311</option>
+                <option value="cledqIm2212">cledqIm2212</option>
+                <option value="cledqIm2112">cledqIm2112</option>
+                <option value="cledqIm2312">cledqIm2312</option>
+                <option value="cledqIm2213">cledqIm2213</option>
+                <option value="cledqIm2113">cledqIm2113</option>
+                <option value="cledqIm2313">cledqIm2313</option>
+                <option value="cledqIm2221">cledqIm2221</option>
+                <option value="cledqIm2121">cledqIm2121</option>
+                <option value="cledqIm2321">cledqIm2321</option>
+                <option value="cledqIm2222">cledqIm2222</option>
+                <option value="cledqIm2122">cledqIm2122</option>
+                <option value="cledqIm2322">cledqIm2322</option>
+                <option value="cledqIm2223">cledqIm2223</option>
+                <option value="cledqIm2123">cledqIm2123</option>
+                <option value="cledqIm2323">cledqIm2323</option>
+                <option value="cledqIm2231">cledqIm2231</option>
+                <option value="cledqIm2131">cledqIm2131</option>
+                <option value="cledqIm2331">cledqIm2331</option>
+                <option value="cledqIm2232">cledqIm2232</option>
+                <option value="cledqIm2132">cledqIm2132</option>
+                <option value="cledqIm2332">cledqIm2332</option>
+                <option value="cledqIm2233">cledqIm2233</option>
+                <option value="cledqIm2133">cledqIm2133</option>
+                <option value="cledqIm2333">cledqIm2333</option>
+                <option value="cledqIm3311">cledqIm3311</option>
+                <option value="cledqIm3111">cledqIm3111</option>
+                <option value="cledqIm3211">cledqIm3211</option>
+                <option value="cledqIm3312">cledqIm3312</option>
+                <option value="cledqIm3112">cledqIm3112</option>
+                <option value="cledqIm3212">cledqIm3212</option>
+                <option value="cledqIm3313">cledqIm3313</option>
+                <option value="cledqIm3113">cledqIm3113</option>
+                <option value="cledqIm3213">cledqIm3213</option>
+                <option value="cledqIm3321">cledqIm3321</option>
+                <option value="cledqIm3121">cledqIm3121</option>
+                <option value="cledqIm3221">cledqIm3221</option>
+                <option value="cledqIm3322">cledqIm3322</option>
+                <option value="cledqIm3122">cledqIm3122</option>
+                <option value="cledqIm3222">cledqIm3222</option>
+                <option value="cledqIm3323">cledqIm3323</option>
+                <option value="cledqIm3123">cledqIm3123</option>
+                <option value="cledqIm3223">cledqIm3223</option>
+                <option value="cledqIm3331">cledqIm3331</option>
+                <option value="cledqIm3131">cledqIm3131</option>
+                <option value="cledqIm3231">cledqIm3231</option>
+                <option value="cledqIm3332">cledqIm3332</option>
+                <option value="cledqIm3132">cledqIm3132</option>
+                <option value="cledqIm3232">cledqIm3232</option>
+                <option value="cledqIm3333">cledqIm3333</option>
+                <option value="cledqIm3133">cledqIm3133</option>
+                <option value="cledqIm3233">cledqIm3233</option>
+                <option value="cquqd1Im1111">cquqd1Im1111</option>
+                <option value="cquqd1Im1211">cquqd1Im1211</option>
+                <option value="cquqd1Im1311">cquqd1Im1311</option>
+                <option value="cquqd1Im1112">cquqd1Im1112</option>
+                <option value="cquqd1Im1212">cquqd1Im1212</option>
+                <option value="cquqd1Im1312">cquqd1Im1312</option>
+                <option value="cquqd1Im1113">cquqd1Im1113</option>
+                <option value="cquqd1Im1213">cquqd1Im1213</option>
+                <option value="cquqd1Im1313">cquqd1Im1313</option>
+                <option value="cquqd1Im1121">cquqd1Im1121</option>
+                <option value="cquqd1Im1221">cquqd1Im1221</option>
+                <option value="cquqd1Im1321">cquqd1Im1321</option>
+                <option value="cquqd1Im1122">cquqd1Im1122</option>
+                <option value="cquqd1Im1222">cquqd1Im1222</option>
+                <option value="cquqd1Im1322">cquqd1Im1322</option>
+                <option value="cquqd1Im1123">cquqd1Im1123</option>
+                <option value="cquqd1Im1223">cquqd1Im1223</option>
+                <option value="cquqd1Im1323">cquqd1Im1323</option>
+                <option value="cquqd1Im1131">cquqd1Im1131</option>
+                <option value="cquqd1Im1231">cquqd1Im1231</option>
+                <option value="cquqd1Im1331">cquqd1Im1331</option>
+                <option value="cquqd1Im1132">cquqd1Im1132</option>
+                <option value="cquqd1Im1232">cquqd1Im1232</option>
+                <option value="cquqd1Im1332">cquqd1Im1332</option>
+                <option value="cquqd1Im1133">cquqd1Im1133</option>
+                <option value="cquqd1Im1233">cquqd1Im1233</option>
+                <option value="cquqd1Im1333">cquqd1Im1333</option>
+                <option value="cquqd1Im2211">cquqd1Im2211</option>
+                <option value="cquqd1Im2111">cquqd1Im2111</option>
+                <option value="cquqd1Im2311">cquqd1Im2311</option>
+                <option value="cquqd1Im2212">cquqd1Im2212</option>
+                <option value="cquqd1Im2112">cquqd1Im2112</option>
+                <option value="cquqd1Im2312">cquqd1Im2312</option>
+                <option value="cquqd1Im2213">cquqd1Im2213</option>
+                <option value="cquqd1Im2113">cquqd1Im2113</option>
+                <option value="cquqd1Im2313">cquqd1Im2313</option>
+                <option value="cquqd1Im2221">cquqd1Im2221</option>
+                <option value="cquqd1Im2121">cquqd1Im2121</option>
+                <option value="cquqd1Im2321">cquqd1Im2321</option>
+                <option value="cquqd1Im2222">cquqd1Im2222</option>
+                <option value="cquqd1Im2122">cquqd1Im2122</option>
+                <option value="cquqd1Im2322">cquqd1Im2322</option>
+                <option value="cquqd1Im2223">cquqd1Im2223</option>
+                <option value="cquqd1Im2123">cquqd1Im2123</option>
+                <option value="cquqd1Im2323">cquqd1Im2323</option>
+                <option value="cquqd1Im2231">cquqd1Im2231</option>
+                <option value="cquqd1Im2131">cquqd1Im2131</option>
+                <option value="cquqd1Im2331">cquqd1Im2331</option>
+                <option value="cquqd1Im2232">cquqd1Im2232</option>
+                <option value="cquqd1Im2132">cquqd1Im2132</option>
+                <option value="cquqd1Im2332">cquqd1Im2332</option>
+                <option value="cquqd1Im2233">cquqd1Im2233</option>
+                <option value="cquqd1Im2133">cquqd1Im2133</option>
+                <option value="cquqd1Im2333">cquqd1Im2333</option>
+                <option value="cquqd1Im3311">cquqd1Im3311</option>
+                <option value="cquqd1Im3111">cquqd1Im3111</option>
+                <option value="cquqd1Im3211">cquqd1Im3211</option>
+                <option value="cquqd1Im3312">cquqd1Im3312</option>
+                <option value="cquqd1Im3112">cquqd1Im3112</option>
+                <option value="cquqd1Im3212">cquqd1Im3212</option>
+                <option value="cquqd1Im3313">cquqd1Im3313</option>
+                <option value="cquqd1Im3113">cquqd1Im3113</option>
+                <option value="cquqd1Im3213">cquqd1Im3213</option>
+                <option value="cquqd1Im3321">cquqd1Im3321</option>
+                <option value="cquqd1Im3121">cquqd1Im3121</option>
+                <option value="cquqd1Im3221">cquqd1Im3221</option>
+                <option value="cquqd1Im3322">cquqd1Im3322</option>
+                <option value="cquqd1Im3122">cquqd1Im3122</option>
+                <option value="cquqd1Im3222">cquqd1Im3222</option>
+                <option value="cquqd1Im3323">cquqd1Im3323</option>
+                <option value="cquqd1Im3123">cquqd1Im3123</option>
+                <option value="cquqd1Im3223">cquqd1Im3223</option>
+                <option value="cquqd1Im3331">cquqd1Im3331</option>
+                <option value="cquqd1Im3131">cquqd1Im3131</option>
+                <option value="cquqd1Im3231">cquqd1Im3231</option>
+                <option value="cquqd1Im3332">cquqd1Im3332</option>
+                <option value="cquqd1Im3132">cquqd1Im3132</option>
+                <option value="cquqd1Im3232">cquqd1Im3232</option>
+                <option value="cquqd1Im3333">cquqd1Im3333</option>
+                <option value="cquqd1Im3133">cquqd1Im3133</option>
+                <option value="cquqd1Im3233">cquqd1Im3233</option>
+                <option value="cquqd8Im1111">cquqd8Im1111</option>
+                <option value="cquqd8Im1211">cquqd8Im1211</option>
+                <option value="cquqd8Im1311">cquqd8Im1311</option>
+                <option value="cquqd8Im1112">cquqd8Im1112</option>
+                <option value="cquqd8Im1212">cquqd8Im1212</option>
+                <option value="cquqd8Im1312">cquqd8Im1312</option>
+                <option value="cquqd8Im1113">cquqd8Im1113</option>
+                <option value="cquqd8Im1213">cquqd8Im1213</option>
+                <option value="cquqd8Im1313">cquqd8Im1313</option>
+                <option value="cquqd8Im1121">cquqd8Im1121</option>
+                <option value="cquqd8Im1221">cquqd8Im1221</option>
+                <option value="cquqd8Im1321">cquqd8Im1321</option>
+                <option value="cquqd8Im1122">cquqd8Im1122</option>
+                <option value="cquqd8Im1222">cquqd8Im1222</option>
+                <option value="cquqd8Im1322">cquqd8Im1322</option>
+                <option value="cquqd8Im1123">cquqd8Im1123</option>
+                <option value="cquqd8Im1223">cquqd8Im1223</option>
+                <option value="cquqd8Im1323">cquqd8Im1323</option>
+                <option value="cquqd8Im1131">cquqd8Im1131</option>
+                <option value="cquqd8Im1231">cquqd8Im1231</option>
+                <option value="cquqd8Im1331">cquqd8Im1331</option>
+                <option value="cquqd8Im1132">cquqd8Im1132</option>
+                <option value="cquqd8Im1232">cquqd8Im1232</option>
+                <option value="cquqd8Im1332">cquqd8Im1332</option>
+                <option value="cquqd8Im1133">cquqd8Im1133</option>
+                <option value="cquqd8Im1233">cquqd8Im1233</option>
+                <option value="cquqd8Im1333">cquqd8Im1333</option>
+                <option value="cquqd8Im2211">cquqd8Im2211</option>
+                <option value="cquqd8Im2111">cquqd8Im2111</option>
+                <option value="cquqd8Im2311">cquqd8Im2311</option>
+                <option value="cquqd8Im2212">cquqd8Im2212</option>
+                <option value="cquqd8Im2112">cquqd8Im2112</option>
+                <option value="cquqd8Im2312">cquqd8Im2312</option>
+                <option value="cquqd8Im2213">cquqd8Im2213</option>
+                <option value="cquqd8Im2113">cquqd8Im2113</option>
+                <option value="cquqd8Im2313">cquqd8Im2313</option>
+                <option value="cquqd8Im2221">cquqd8Im2221</option>
+                <option value="cquqd8Im2121">cquqd8Im2121</option>
+                <option value="cquqd8Im2321">cquqd8Im2321</option>
+                <option value="cquqd8Im2222">cquqd8Im2222</option>
+                <option value="cquqd8Im2122">cquqd8Im2122</option>
+                <option value="cquqd8Im2322">cquqd8Im2322</option>
+                <option value="cquqd8Im2223">cquqd8Im2223</option>
+                <option value="cquqd8Im2123">cquqd8Im2123</option>
+                <option value="cquqd8Im2323">cquqd8Im2323</option>
+                <option value="cquqd8Im2231">cquqd8Im2231</option>
+                <option value="cquqd8Im2131">cquqd8Im2131</option>
+                <option value="cquqd8Im2331">cquqd8Im2331</option>
+                <option value="cquqd8Im2232">cquqd8Im2232</option>
+                <option value="cquqd8Im2132">cquqd8Im2132</option>
+                <option value="cquqd8Im2332">cquqd8Im2332</option>
+                <option value="cquqd8Im2233">cquqd8Im2233</option>
+                <option value="cquqd8Im2133">cquqd8Im2133</option>
+                <option value="cquqd8Im2333">cquqd8Im2333</option>
+                <option value="cquqd8Im3311">cquqd8Im3311</option>
+                <option value="cquqd8Im3111">cquqd8Im3111</option>
+                <option value="cquqd8Im3211">cquqd8Im3211</option>
+                <option value="cquqd8Im3312">cquqd8Im3312</option>
+                <option value="cquqd8Im3112">cquqd8Im3112</option>
+                <option value="cquqd8Im3212">cquqd8Im3212</option>
+                <option value="cquqd8Im3313">cquqd8Im3313</option>
+                <option value="cquqd8Im3113">cquqd8Im3113</option>
+                <option value="cquqd8Im3213">cquqd8Im3213</option>
+                <option value="cquqd8Im3321">cquqd8Im3321</option>
+                <option value="cquqd8Im3121">cquqd8Im3121</option>
+                <option value="cquqd8Im3221">cquqd8Im3221</option>
+                <option value="cquqd8Im3322">cquqd8Im3322</option>
+                <option value="cquqd8Im3122">cquqd8Im3122</option>
+                <option value="cquqd8Im3222">cquqd8Im3222</option>
+                <option value="cquqd8Im3323">cquqd8Im3323</option>
+                <option value="cquqd8Im3123">cquqd8Im3123</option>
+                <option value="cquqd8Im3223">cquqd8Im3223</option>
+                <option value="cquqd8Im3331">cquqd8Im3331</option>
+                <option value="cquqd8Im3131">cquqd8Im3131</option>
+                <option value="cquqd8Im3231">cquqd8Im3231</option>
+                <option value="cquqd8Im3332">cquqd8Im3332</option>
+                <option value="cquqd8Im3132">cquqd8Im3132</option>
+                <option value="cquqd8Im3232">cquqd8Im3232</option>
+                <option value="cquqd8Im3333">cquqd8Im3333</option>
+                <option value="cquqd8Im3133">cquqd8Im3133</option>
+                <option value="cquqd8Im3233">cquqd8Im3233</option>
+                <option value="clequ1Im1111">clequ1Im1111</option>
+                <option value="clequ1Im1211">clequ1Im1211</option>
+                <option value="clequ1Im1311">clequ1Im1311</option>
+                <option value="clequ1Im1112">clequ1Im1112</option>
+                <option value="clequ1Im1212">clequ1Im1212</option>
+                <option value="clequ1Im1312">clequ1Im1312</option>
+                <option value="clequ1Im1113">clequ1Im1113</option>
+                <option value="clequ1Im1213">clequ1Im1213</option>
+                <option value="clequ1Im1313">clequ1Im1313</option>
+                <option value="clequ1Im1121">clequ1Im1121</option>
+                <option value="clequ1Im1221">clequ1Im1221</option>
+                <option value="clequ1Im1321">clequ1Im1321</option>
+                <option value="clequ1Im1122">clequ1Im1122</option>
+                <option value="clequ1Im1222">clequ1Im1222</option>
+                <option value="clequ1Im1322">clequ1Im1322</option>
+                <option value="clequ1Im1123">clequ1Im1123</option>
+                <option value="clequ1Im1223">clequ1Im1223</option>
+                <option value="clequ1Im1323">clequ1Im1323</option>
+                <option value="clequ1Im1131">clequ1Im1131</option>
+                <option value="clequ1Im1231">clequ1Im1231</option>
+                <option value="clequ1Im1331">clequ1Im1331</option>
+                <option value="clequ1Im1132">clequ1Im1132</option>
+                <option value="clequ1Im1232">clequ1Im1232</option>
+                <option value="clequ1Im1332">clequ1Im1332</option>
+                <option value="clequ1Im1133">clequ1Im1133</option>
+                <option value="clequ1Im1233">clequ1Im1233</option>
+                <option value="clequ1Im1333">clequ1Im1333</option>
+                <option value="clequ1Im2211">clequ1Im2211</option>
+                <option value="clequ1Im2111">clequ1Im2111</option>
+                <option value="clequ1Im2311">clequ1Im2311</option>
+                <option value="clequ1Im2212">clequ1Im2212</option>
+                <option value="clequ1Im2112">clequ1Im2112</option>
+                <option value="clequ1Im2312">clequ1Im2312</option>
+                <option value="clequ1Im2213">clequ1Im2213</option>
+                <option value="clequ1Im2113">clequ1Im2113</option>
+                <option value="clequ1Im2313">clequ1Im2313</option>
+                <option value="clequ1Im2221">clequ1Im2221</option>
+                <option value="clequ1Im2121">clequ1Im2121</option>
+                <option value="clequ1Im2321">clequ1Im2321</option>
+                <option value="clequ1Im2222">clequ1Im2222</option>
+                <option value="clequ1Im2122">clequ1Im2122</option>
+                <option value="clequ1Im2322">clequ1Im2322</option>
+                <option value="clequ1Im2223">clequ1Im2223</option>
+                <option value="clequ1Im2123">clequ1Im2123</option>
+                <option value="clequ1Im2323">clequ1Im2323</option>
+                <option value="clequ1Im2231">clequ1Im2231</option>
+                <option value="clequ1Im2131">clequ1Im2131</option>
+                <option value="clequ1Im2331">clequ1Im2331</option>
+                <option value="clequ1Im2232">clequ1Im2232</option>
+                <option value="clequ1Im2132">clequ1Im2132</option>
+                <option value="clequ1Im2332">clequ1Im2332</option>
+                <option value="clequ1Im2233">clequ1Im2233</option>
+                <option value="clequ1Im2133">clequ1Im2133</option>
+                <option value="clequ1Im2333">clequ1Im2333</option>
+                <option value="clequ1Im3311">clequ1Im3311</option>
+                <option value="clequ1Im3111">clequ1Im3111</option>
+                <option value="clequ1Im3211">clequ1Im3211</option>
+                <option value="clequ1Im3312">clequ1Im3312</option>
+                <option value="clequ1Im3112">clequ1Im3112</option>
+                <option value="clequ1Im3212">clequ1Im3212</option>
+                <option value="clequ1Im3313">clequ1Im3313</option>
+                <option value="clequ1Im3113">clequ1Im3113</option>
+                <option value="clequ1Im3213">clequ1Im3213</option>
+                <option value="clequ1Im3321">clequ1Im3321</option>
+                <option value="clequ1Im3121">clequ1Im3121</option>
+                <option value="clequ1Im3221">clequ1Im3221</option>
+                <option value="clequ1Im3322">clequ1Im3322</option>
+                <option value="clequ1Im3122">clequ1Im3122</option>
+                <option value="clequ1Im3222">clequ1Im3222</option>
+                <option value="clequ1Im3323">clequ1Im3323</option>
+                <option value="clequ1Im3123">clequ1Im3123</option>
+                <option value="clequ1Im3223">clequ1Im3223</option>
+                <option value="clequ1Im3331">clequ1Im3331</option>
+                <option value="clequ1Im3131">clequ1Im3131</option>
+                <option value="clequ1Im3231">clequ1Im3231</option>
+                <option value="clequ1Im3332">clequ1Im3332</option>
+                <option value="clequ1Im3132">clequ1Im3132</option>
+                <option value="clequ1Im3232">clequ1Im3232</option>
+                <option value="clequ1Im3333">clequ1Im3333</option>
+                <option value="clequ1Im3133">clequ1Im3133</option>
+                <option value="clequ1Im3233">clequ1Im3233</option>
+                <option value="clequ3Im1111">clequ3Im1111</option>
+                <option value="clequ3Im1211">clequ3Im1211</option>
+                <option value="clequ3Im1311">clequ3Im1311</option>
+                <option value="clequ3Im1112">clequ3Im1112</option>
+                <option value="clequ3Im1212">clequ3Im1212</option>
+                <option value="clequ3Im1312">clequ3Im1312</option>
+                <option value="clequ3Im1113">clequ3Im1113</option>
+                <option value="clequ3Im1213">clequ3Im1213</option>
+                <option value="clequ3Im1313">clequ3Im1313</option>
+                <option value="clequ3Im1121">clequ3Im1121</option>
+                <option value="clequ3Im1221">clequ3Im1221</option>
+                <option value="clequ3Im1321">clequ3Im1321</option>
+                <option value="clequ3Im1122">clequ3Im1122</option>
+                <option value="clequ3Im1222">clequ3Im1222</option>
+                <option value="clequ3Im1322">clequ3Im1322</option>
+                <option value="clequ3Im1123">clequ3Im1123</option>
+                <option value="clequ3Im1223">clequ3Im1223</option>
+                <option value="clequ3Im1323">clequ3Im1323</option>
+                <option value="clequ3Im1131">clequ3Im1131</option>
+                <option value="clequ3Im1231">clequ3Im1231</option>
+                <option value="clequ3Im1331">clequ3Im1331</option>
+                <option value="clequ3Im1132">clequ3Im1132</option>
+                <option value="clequ3Im1232">clequ3Im1232</option>
+                <option value="clequ3Im1332">clequ3Im1332</option>
+                <option value="clequ3Im1133">clequ3Im1133</option>
+                <option value="clequ3Im1233">clequ3Im1233</option>
+                <option value="clequ3Im1333">clequ3Im1333</option>
+                <option value="clequ3Im2211">clequ3Im2211</option>
+                <option value="clequ3Im2111">clequ3Im2111</option>
+                <option value="clequ3Im2311">clequ3Im2311</option>
+                <option value="clequ3Im2212">clequ3Im2212</option>
+                <option value="clequ3Im2112">clequ3Im2112</option>
+                <option value="clequ3Im2312">clequ3Im2312</option>
+                <option value="clequ3Im2213">clequ3Im2213</option>
+                <option value="clequ3Im2113">clequ3Im2113</option>
+                <option value="clequ3Im2313">clequ3Im2313</option>
+                <option value="clequ3Im2221">clequ3Im2221</option>
+                <option value="clequ3Im2121">clequ3Im2121</option>
+                <option value="clequ3Im2321">clequ3Im2321</option>
+                <option value="clequ3Im2222">clequ3Im2222</option>
+                <option value="clequ3Im2122">clequ3Im2122</option>
+                <option value="clequ3Im2322">clequ3Im2322</option>
+                <option value="clequ3Im2223">clequ3Im2223</option>
+                <option value="clequ3Im2123">clequ3Im2123</option>
+                <option value="clequ3Im2323">clequ3Im2323</option>
+                <option value="clequ3Im2231">clequ3Im2231</option>
+                <option value="clequ3Im2131">clequ3Im2131</option>
+                <option value="clequ3Im2331">clequ3Im2331</option>
+                <option value="clequ3Im2232">clequ3Im2232</option>
+                <option value="clequ3Im2132">clequ3Im2132</option>
+                <option value="clequ3Im2332">clequ3Im2332</option>
+                <option value="clequ3Im2233">clequ3Im2233</option>
+                <option value="clequ3Im2133">clequ3Im2133</option>
+                <option value="clequ3Im2333">clequ3Im2333</option>
+                <option value="clequ3Im3311">clequ3Im3311</option>
+                <option value="clequ3Im3111">clequ3Im3111</option>
+                <option value="clequ3Im3211">clequ3Im3211</option>
+                <option value="clequ3Im3312">clequ3Im3312</option>
+                <option value="clequ3Im3112">clequ3Im3112</option>
+                <option value="clequ3Im3212">clequ3Im3212</option>
+                <option value="clequ3Im3313">clequ3Im3313</option>
+                <option value="clequ3Im3113">clequ3Im3113</option>
+                <option value="clequ3Im3213">clequ3Im3213</option>
+                <option value="clequ3Im3321">clequ3Im3321</option>
+                <option value="clequ3Im3121">clequ3Im3121</option>
+                <option value="clequ3Im3221">clequ3Im3221</option>
+                <option value="clequ3Im3322">clequ3Im3322</option>
+                <option value="clequ3Im3122">clequ3Im3122</option>
+                <option value="clequ3Im3222">clequ3Im3222</option>
+                <option value="clequ3Im3323">clequ3Im3323</option>
+                <option value="clequ3Im3123">clequ3Im3123</option>
+                <option value="clequ3Im3223">clequ3Im3223</option>
+                <option value="clequ3Im3331">clequ3Im3331</option>
+                <option value="clequ3Im3131">clequ3Im3131</option>
+                <option value="clequ3Im3231">clequ3Im3231</option>
+                <option value="clequ3Im3332">clequ3Im3332</option>
+                <option value="clequ3Im3132">clequ3Im3132</option>
+                <option value="clequ3Im3232">clequ3Im3232</option>
+                <option value="clequ3Im3333">clequ3Im3333</option>
+                <option value="clequ3Im3133">clequ3Im3133</option>
+                <option value="clequ3Im3233">clequ3Im3233</option>
+            </select>
+            </p>
+
+            <p>
+            <span id="eft-term"></span>
+            </p>
+
+        <h2>Result vertices</h2>
+
+        <div id="feynman-container" style="display: flex; justify-content: center;">
+            <p>Please make sure to select both EFT parameters and a particle.</p>
+        </div>
+
+        <div id="footer">Made with &#127867; by Stephen Nicholas Swatman and
+        Rahul Balasubramanian using <a
+        href="https://photino.github.io/jquery-feyn/">jQuery.Feyn</a> and <a
+        href="https://smeftsim.github.io/">SMEFTsim</a>.</div>
+
+        <script>
+            var term_map = {
+                "cG"		:  "Q_G =  f^{abc} G_\\mu^{a\\nu} G_\\nu^{b\\rho} G_\\rho^{c\\mu}  ",
+                "ceW"		:  "Q_{eW} =  (\\bar l_p \\sigma^{\\mu\\nu} e_r) \\sigma^i H W_{\\mu\\nu}^i ",
+                "cee"		:  "Q_{ee} =  (\\bar e_p \\gamma_\\mu e_r)(\\bar e_s \\gamma^\\mu e_t) ",
+                "cGtil"		:  "Q_{\\widetilde G} =  f^{abc} \\widetilde G_\\mu^{a\\nu} G_\\nu^{b\\rho} G_\\rho^{c\\mu}  ",
+                "ceB"		:  "Q_{eB} =  (\\bar l_p \\sigma^{\\mu\\nu} e_r) H B_{\\mu\\nu} ",
+                "cuu"		:  "Q_{uu} =  (\\bar u_p \\gamma_\\mu u_r)(\\bar u_s \\gamma^\\mu u_t) ",
+                "cW"		:  "Q_W =  \\e^{ijk} W_\\mu^{i\\nu} W_\\nu^{j\\rho} W_\\rho^{k\\mu} ",
+                "cuGRe"		:  "Q_{uG} =  (\\bar q_p \\sigma^{\\mu\\nu} T^a u_r) \\widetilde H \\, G_{\\mu\\nu}^a ",
+                "cdd"		:  "Q_{dd} =  (\\bar d_p \\gamma_\\mu d_r)(\\bar d_s \\gamma^\\mu d_t) ",
+                "cWtil"		:  "Q_{\\widetilde W} =  \\e^{ijk} \\widetilde W_\\mu^{i\\nu} W_\\nu^{j\\rho} W_\\rho^{k\\mu} ",
+                "cuWRe"		:  "Q_{uW} =  (\\bar q_p \\sigma^{\\mu\\nu} u_r) \\sigma^i \\widetilde H \\, W_{\\mu\\nu}^i ",
+                "ceu"		:  "Q_{eu} =  (\\bar e_p \\gamma_\\mu e_r)(\\bar u_s \\gamma^\\mu u_t) ",
+                "cuBRe"		:  "Q_{uB} =  (\\bar q_p \\sigma^{\\mu\\nu} u_r) \\widetilde H \\, B_{\\mu\\nu} ",
+                "ced"		:  "Q_{ed} =  (\\bar e_p \\gamma_\\mu e_r)(\\bar d_s\\gamma^\\mu d_t) ",
+                "cH"		:  "Q_H =  (H^\\dagger H)^3",
+                "cdG"		:  "Q_{dG} =  (\\bar q_p \\sigma^{\\mu\\nu} T^a d_r) H\\, G_{\\mu\\nu}^a ",
+                "cud1"		:  "Q_{ud}^{(1)} =  (\\bar u_p \\gamma_\\mu u_r)(\\bar d_s \\gamma^\\mu d_t) ",
+                "cdW"		:  "Q_{dW} =  (\\bar q_p \\sigma^{\\mu\\nu} d_r) \\sigma^i H\\, W_{\\mu\\nu}^i ",
+                "cud8"		:  "Q_{ud}^{(8)} =  (\\bar u_p \\gamma_\\mu T^a u_r)(\\bar d_s \\gamma^\\mu T^a d_t) ",
+                "cHbox"		:  "Q_{H\\Box} =  (H^\\dagger H)\\Box(H^\\dagger H) ",
+                "cdB"		:  "Q_{dB} =  (\\bar q_p \\sigma^{\\mu\\nu} d_r) H\\, B_{\\mu\\nu} ",
+                "cHDD"		:  "Q_{HD} =  \\ \\left(D^\\mu H^\\dagger  H\\right) \\left(H^\\dagger D_\\mu H\\right) ",
+                "cHG"		:  "Q_{HG} =  H^\\dagger H\\, G^a_{\\mu\\nu} G^{a\\mu\\nu} ",
+                "cHl1"		:  "Q_{Hl}^{(1)} =  (H^\\dagger i\\overleftrightarrow{D}_\\mu H)(\\bar l_p \\gamma^\\mu l_r)",
+                "cle"		:  "Q_{le} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t)",
+                "cHGtil"	:  "Q_{H\\widetilde G} =  H^\\dagger H\\, \\widetilde G^a_{\\mu\\nu} G^{a\\mu\\nu} ",
+                "cHl3"		:  "Q_{Hl}^{(3)} =  (H^\\dagger i\\overleftrightarrow{D}^i_\\mu H)(\\bar l_p \\sigma^i \\gamma^\\mu l_r)",
+                "clu"		:  "Q_{lu} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar u_s \\gamma^\\mu u_t) ",
+                "cHW"		:  "Q_{HW} =  H^\\dagger H\\, W^i_{\\mu\\nu} W^{I\\mu\\nu} ",
+                "cHe"		:  "Q_{He} =  (H^\\dagger i\\overleftrightarrow{D}_\\mu H)(\\bar e_p \\gamma^\\mu e_r)",
+                "cld"		:  "Q_{ld} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar d_s \\gamma^\\mu d_t) ",
+                "cHWtil"	:  "Q_{H\\widetilde W} =  H^\\dagger H\\, \\widetilde W^i_{\\mu\\nu} W^{i\\mu\\nu} ",
+                "cHq1"		:  "Q_{Hq}^{(1)} =  (H^\\dagger i\\overleftrightarrow{D}_\\mu H)(\\bar q_p \\gamma^\\mu q_r)",
+                "cqe"		:  "Q_{qe} =  (\\bar q_p \\gamma_\\mu q_r)(\\bar e_s \\gamma^\\mu e_t)",
+                "cHB"		:  "Q_{HB} =   H^\\dagger H\\, B_{\\mu\\nu} B^{\\mu\\nu} ",
+                "cHq3"		:  "Q_{Hq}^{(3)} =  (H^\\dagger i\\overleftrightarrow{D}^i_\\mu H)(\\bar q_p \\sigma^i \\gamma^\\mu q_r)",
+                "cqu1"		:  "Q_{qu}^{(1)} =  (\\bar q_p \\gamma_\\mu q_r)(\\bar u_s \\gamma^\\mu u_t)",
+                "cHBtil"	:  "Q_{H\\widetildeB} =  H^\\dagger H\\, \\widetilde B_{\\mu\\nu} B^{\\mu\\nu} ",
+                "cHu"		:  "Q_{Hu} =  (H^\\dagger i\\overleftrightarrow{D}_\\mu H)(\\bar u_p \\gamma^\\mu u_r)",
+                "cqu8"		:  "Q_{qu}^{(8)} =  (\\bar q_p \\gamma_\\mu T^a q_r)(\\bar u_s \\gamma^\\mu T^a u_t) ",
+                "cHWB"		:  "Q_{HWB} =  H^\\dagger \\sigma^i H\\, W^i_{\\mu\\nu} B^{\\mu\\nu}",
+                "cHd"		:  "Q_{Hd} =  (H^\\dagger i\\overleftrightarrow{D}_\\mu H)(\\bar d_p \\gamma^\\mu d_r)",
+                "cqd1"		:  "Q_{qd}^{(1)} =  (\\bar q_p \\gamma_\\mu q_r)(\\bar d_s \\gamma^\\mu d_t) ",
+                "cHWBtil"	:  "Q_{H\\widetilde WB} =  H^\\dagger \\sigma^i H\\, \\widetilde W^i_{\\mu\\nu} B^{\\mu\\nu} ",
+                "cHudRe"	:  "Q_{Hud}+\\hc =  i(\\widetilde H ^\\dagger D_\\mu H)(\\bar u_p \\gamma^\\mu d_r)",
+                "cqd8"		:  "Q_{qd}^{(8)} =  (\\bar q_p \\gamma_\\mu T^a q_r)(\\bar d_s \\gamma^\\mu T^a d_t)",
+                "ceH"		:  "Q_{eH} =  (H^\\dagger H)(\\bar l_p e_r H)",
+                "cll"		:  "Q_{ll} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar l_s \\gamma^\\mu l_t)",
+                "cledq"		:  "Q_{ledq} =  (\\bar l_p^j e_r)(\\bar d_s q_{tj})",
+                "cuH"		:  "Q_{uH} =  (H^\\dagger H)(\\bar q_p u_r \\widetilde H )",
+                "cqq1"		:  "Q_{qq}^{(1)} =  (\\bar q_p \\gamma_\\mu q_r)(\\bar q_s \\gamma^\\mu q_t) ",
+                "cquqd1"	:  "Q_{quqd}^{(1)} =  (\\bar q_p^j u_r) \\e_{jk} (\\bar q_s^k d_t) ",
+                "cdHRe"		:  "Q_{dH} =  (H^\\dagger H)(\\bar q_p d_r H)",
+                "cqq3"		:  "Q_{qq}^{(3)} =  (\\bar q_p \\gamma_\\mu \\sigma^i q_r)(\\bar q_s \\gamma^\\mu \\sigma^i q_t) ",
+                "cquqd8"	:  "Q_{quqd}^{(8)} =  (\\bar q_p^j T^a u_r) \\e_{jk} (\\bar q_s^k T^a d_t) ",
+                "clq1"		:  "Q_{lq}^{(1)} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar q_s \\gamma^\\mu q_t)",
+                "clequ1"	:  "Q_{lequ}^{(1)} =  (\\bar l_p^j e_r) \\e_{jk} (\\bar q_s^k u_t) ",
+                "clq3"		:  "Q_{lq}^{(3)} =  (\\bar l_p \\gamma_\\mu \\sigma^i l_r)(\\bar q_s \\gamma^\\mu \\sigma^i q_t) ",
+                "clequ3"	:  "Q_{lequ}^{(3)} =  (\\bar l_p^j \\sigma_{\\mu\\nu} e_r) \\e_{jk} (\\bar q_s^k \\sigma^{\\mu\\nu} u_t) "
+            }
+
+            function prettyparticle(p) {
+                if(p == "a") {
+                    return "γ";
+                } else if(p == "W+") {
+                    return "W&#8314;";
+                } else if(p == "W-") {
+                    return "W&#8315;";
+                } else if(p == "ve") {
+                    return "νe";
+                } else if(p == "ve~") {
+                    return "νe~";
+                } else if(p == "vm") {
+                    return "νμ";
+                } else if(p == "vm~") {
+                    return "νμ~";
+                } else if(p == "vt") {
+                    return "ντ";
+                } else if(p == "vt~") {
+                    return "ντ~";
+                } else if(p == "e-") {
+                    return "e&#8315;";
+                } else if(p == "e+") {
+                    return "e&#8314;";
+                } else if(p == "mu-") {
+                    return "μ&#8315;";
+                } else if(p == "mu+") {
+                    return "μ&#8314;";
+                } else if(p == "ta-") {
+                    return "τ&#8315;";
+                } else if(p == "ta+") {
+                    return "τ&#8314;";
+                } else {
+                    return p;
+                }
+            }
+
+            function render() {
+                var eft = $('#select-eft').val();
+                var par = $('#particle-selection').val();
+
+                if (eft) {
+                    // Rahul: Put your own text here.
+                    $("#eft-term").text("$" + (eft in term_map ? term_map[eft] : "\\sum_{i=0}^n \\mathrm{" + eft + "}") + "$");
+                    MathJax.typeset();
+                }
+
+                if (eft && par) {
+                    var data = vertices_general[eft][par];
+
+                    $('#feynman-container').empty();
+
+                    if (data.length > 0) {
+                        for (var i = 0; i < data.length; ++i) {
+                            $('#feynman-container').append("<div class=\"feynman-diagram\" id=\"container" + i + "\"></div>");
+
+                            var arr = data[i];
+
+                            console.log(arr);
+
+                            var diag = {
+                                incoming: {},
+                                vertex: {v: '90, 90'},
+                                scalar: {line: ''},
+                                photon: {line: ''},
+                                fermion: {line: '', arrow: false},
+                                gluon: {line: '', clockwise: true},
+                                label: {},
+                                symbol: {s1: ['78,90', 0, 'blob', 12, 12]}
+                            }
+
+                            for (var j = 0; j < arr.length; ++j) {
+                                t = j * (2 * Math.PI) / arr.length;
+                                p = arr[j];
+
+                                if (p == "a" || p == "Z" || p == "W+" || p == "W-") {
+                                    target = "photon";
+                                } else if (p == "g") {
+                                    target = "gluon";
+                                } else if (p == "H") {
+                                    target = "scalar";
+                                } else {
+                                    target = "fermion";
+                                }
+
+                                diag.vertex["v" + j] = (Math.cos(t) * 12 + 90) + "," + (Math.sin(t) * 12 + 90);
+                                diag.incoming["i" + j] = (Math.cos(t) * 90 + 90) + "," + (Math.sin(t) * 90 + 90);
+                                diag[target].line += "v" + j + "-i" + j + ",";
+                                diag.label["t" + j] = [(Math.cos(t - 0.175) * 80 + 90) + "," + (Math.sin(t - 0.175) * 80 + 90 + 5), prettyparticle(p)];
+                            }
+
+
+                            $('#container' + i).feyn(diag);
+                        }
+
+                    } else {
+                        $('#feynman-container').append("<p>This combination did not produce any vertices.</p>");
+                    }
+                }
+            }
+
+            $('.particle').click(function(){
+                $('#particle-select').find('.particle').removeClass('selected');
+                $(this).addClass('selected');
+                var val = $(this).attr('data-value');
+                $('#particle-selection').val(val);
+                $('#particle-selection').change();
+            });
+
+            $('#particle-selection').on('change', render);
+            $('#select-eft').on('change', render);
+
+            $("document").ready(function() {
+                $("#select-eft").selectize({
+                    maxItems: null
+              });
+            });
+
+            $("document").ready(function() {
+                $("#select-model").selectize({
+              });
+            });
+
+            $("document").ready(function() {
+                $("#select-flavour").selectize({
+              });
+            });
+          </script>
+          <script>
+            MathJax = {
+              tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+              }
+            };
+            </script>
+            <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+            </script>
+    </body>
+</html>
