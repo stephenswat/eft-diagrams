@@ -1,7 +1,7 @@
 import json
 
-names = json.load(open("tex_names.json","r"))
-parnames = json.load(open("parnames.json","r"))
+names = json.load(open("data/tex_names.json","r"))
+parnames = json.load(open("data/parnames.json","r"))
 #print(names)
 print(names.keys())
 print(parnames.keys())
@@ -20,4 +20,4 @@ for case,pars in parnames.items():
         if found == False: print(par)
     
     with open("out_"+case+".json","w") as f:
-         json.dump(dict0,f,indent=2)
+         json.dump(dict0,f,indent=4)
