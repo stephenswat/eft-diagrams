@@ -1,0 +1,66 @@
+
+cHl1 ----> Q_{Hl}^{(1)} = (H^\dag i\overleftrightarrow{D}_\mu H) (\bar l_p \g^\mu l_r) 
+cHl3 ----> Q_{Hl}^{(3)} = (H^\dag i\overleftrightarrow{D}_\mu^i H) (\bar l_p \sigma^i\g^\mu l_r) 
+cHWB ----> Q_{HWB} =  H^\dagger \sigma^i H\, W^i_{\mu\nu} B^{\mu\nu}
+cH ----> Q_H =  (H^\dagger H)^3
+cle ----> Q_{le} = (\bar l_p \gamma_\mu l_r)(\bar e_s \gamma^\mu e_t) 
+cG ----> Q_G =  f^{abc} G_\mu^{a\nu} G_\nu^{b\rho} G_\rho^{c\mu}  
+cHDD ----> Q_{HD} =  \ \left(D^\mu H^\dagger  H\right) \left(H^\dagger D_\mu H\right) 
+cHbox ----> Q_{H\Box} =  (H^\dagger H)\Box(H^\dagger H) 
+cW ----> Q_W =  \epsilon^{ijk} W_\mu^{i\nu} W_\nu^{j\rho} W_\rho^{k\mu} 
+cll ----> Q_{ll} =  (\bar l_p \gamma_\mu l_r)(\bar l_s\gamma^\mu l_t) 
+cee ----> Q_{ee} = (\bar e_p \gamma_\mu e_r)(\bar e_s \gamma^\mu e_t) 
+cHe ----> Q_{He} =(H^\dag i\overleftrightarrow{D}_\mu H) (\bar e_p \g^\mu e_r) 
+cquqd1 ----> Q_{quqd}^{(1)\prime} =  (Y_u^\dag)_{sr} (Y_d^\dag)_{pt} (\bar q^j_p \, u_r)  \epsilon_{jk} (\bar q^k_s\, d_t)
+cquqd8 ----> Q_{quqd}^{(8)\prime} =  (Y_u^\dag)_{sr} (Y_d^\dag)_{pt}(\bar q^j_p \,T^a u_r)  \epsilon_{jk} (\bar q^k_s\, T^a d_t)
+cHB ----> Q_{HB} =   H^\dagger H\, B_{\mu\nu} B^{\mu\nu} 
+ceB ----> Q_{eB} = (\bar l_p \sigma^{\mu\nu} e_r) H B_{\mu\nu} 
+cHG ----> Q_{HG} =  H^\dagger H\, G^a_{\mu\nu} G^{a\mu\nu} 
+ceH ----> Q_{eH} = (H^\dag H) (\bar l_p e_r H) 
+ceW ----> Q_{eW} = (\bar l_p \sigma^{\mu\nu} e_r) \sigma^i H W_{\mu\nu}^i 
+cHW ----> Q_{HW} =  H^\dagger H\, W^i_{\mu\nu} W^{I\mu\nu} 
+
+Not found cqd80
+Not found cledq0
+Not found cuu10
+Not found clequ30
+Not found cHud0
+Not found cquqd11
+Not found cqu80
+Not found cud10
+Not found cuu0
+Not found cdB0
+Not found cll1
+Not found cHq10
+Not found cHd0
+Not found clequ10
+Not found cdW0
+Not found ceu0
+Not found cdd10
+Not found cHu0
+Not found cquqd81
+Not found cHq30
+Not found cqq10
+Not found cqq30
+Not found clq10
+Not found cdd0
+Not found cqq110
+Not found cuG0
+Not found cud80
+Not found cdG0
+Not found cqd810
+Not found clu0
+Not found cqq310
+Not found cqu110
+Not found cuH0
+Not found cqd10
+Not found cqu10
+Not found clq30
+Not found cqe0
+Not found ced0
+Not found cld0
+Not found cuB0
+Not found cdH0
+Not found cqd110
+Not found cuW0
+Not found cqu810
