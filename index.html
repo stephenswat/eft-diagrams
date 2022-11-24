@@ -146,28 +146,22 @@
 <body>
     <h1>Visualising EFT Feynman Vertices</h1>
 
-    <p>This page generates Feynman vertices of particles interacting in an effective theory. Currently available model is SMEFTsim.</p>
+    <p>This page generates Feynman vertices of particles interacting in a effective theory for the Standard Model of particle physics.</p>
 
-    <h2>EFT Model</h2>
-
-    <p>Please select your EFT (currently SMEFTsim):</p>
-
+    <h2>SMEFT Model</h2>
+    <p>Currently only SMEFTsim available:</p>
     <select id="select-model">
             <option value="SMEFTsim">SMEFTsim</option>
         </select>
 
     <h2>Flavour symmetry</h2>
-
-
-
+    <p>Please select a flavour symmetry, you can pick from the list below.</p>
     <select id="select-flavour"></select>
 
     <h2>Particle</h2>
-
     <p>Please select the particle of your choice:</p>
 
     <input id="particle-selection" style="display: none" />
-
     <table id="particle-select">
         <tbody>
             <tr>
@@ -215,7 +209,7 @@
 
     <h2>EFT parameters</h2>
 
-    <p>Please select your EFT parameters from the following options:</p>
+    <p>Please select/type your Wilson coefficient:</p>
 
     <p>
         <select id="select-eft"></select>
@@ -228,7 +222,7 @@
     <h2>Result vertices</h2>
 
     <div id="feynman-container" style="display: flex; justify-content: center;">
-        <p>Please make sure to select both EFT parameters and a particle.</p>
+        <p>Please make sure to select both a Wilson coefficent and a particle.</p>
     </div>
 
     <div id="footer">Made with &#127867; by Stephen Nicholas Swatman and Rahul Balasubramanian using <a href="https://photino.github.io/jquery-feyn/">jQuery.Feyn</a> and <a href="https://smeftsim.github.io/">SMEFTsim</a>.</div>
@@ -384,11 +378,10 @@
             }, {
                 text: 'topU(3)l scheme',
                 value: 'topU3l'
+            }, {
+                text: 'top scheme',
+                value: 'top'
             },
-            //{
-            //    text: 'top scheme',
-            //    value: 'top'
-            //},
             // {
             //    text: 'Minimal Flavour Violation',
             //    value: 'MFV'
@@ -403,7 +396,9 @@
         $('#select-eft').on('change', render);
 
         $("document").ready(function() {
-            $("#select-model").selectize({});
+            $("#select-model").selectize({
+                maxOptions: 0
+            });
         });
 
         $("document").ready(function() {
@@ -413,6 +408,8 @@
                 valueField: 'value',
                 labelField: 'text',
                 sortField: 'value',
+                maxOptions: 10,
+                closeAfterSelect: true,
                 searchField: ['text'],
                 load: (query, callback) => {
                     let options = [];
