@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta charset="UTF-8" />
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+        <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+        <script src="https://photino.github.io/jquery-feyn/js/jquery.feyn-1.0.1.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.12.6/js/standalone/selectize.min.js" integrity="sha256-+C0A5Ilqmu4QcSPxrlGpaZxJ04VjsRjKu+G82kl5UJk=" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.0/es5/latest.min.js" integrity="sha512-/kYnJy6+zL7+sfYX71amPypBreoBzZgp0ujTqNeFuDfLL81iqrpS8T72Q+eFL9cl47CeKW+SRabvI1XkHLtZdQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/selectize.js/0.13.3/css/selectize.default.css" integrity="sha512-J0JTRxsBEJ99DP4GamwciDi8VjALSrZneBYrv98BhqHPvlQP6gLbmmuddlYXHDB8hyLtefOIJFlpZBhksCtK8g==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+        <script src="data/data_redpars.js"></script>
+
+        <title>EFT diagrams</title>
+
+        <style>
+            html {
+                background-color: #eee;
+            }
+
+            body {
+                margin: 0;
+                background-color: white;
+                font-family: 'Source Sans 3', sans-serif;
+                overflow-y: scroll;
+                font-weight: 300;
+                line-height: 150%;
+                padding: 2rem;
+                font-size: 1.2rem;
+                color: #000;
+            }
+
+            @media(min-width: 720px) {
+                body {
+                    margin: 0 auto;
+                    margin-top: 2rem;
+                    margin-bottom: 2rem;
+                    /* border: 1pt solid #777; */
+                    box-shadow: 0 10px 16px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19) !important;
+                    width: 600px;
+                }
+            }
+
+            #particle-select {
+                margin: 0 auto;
+                width: 100%;
+                font-size: 1.5rem;
+            }
+
+            #particle-select tbody tr {
+                height: 60px;
+            }
+
+            #particle-select tbody tr td {
+                width: 12.5%;
+            }
+
+            .anti {
+                text-decoration: overline;
+            }
+
+            .particle {
+                border-radius: 8px;
+                text-align: center;
+                cursor: pointer;
+            }
+
+            .quark {
+                border: 2pt solid hsl(320, 30%, 40%);
+            }
+
+            .quark:hover {
+                background-color: hsl(320, 30%, 80%);
+            }
+
+            .quark.selected {
+                background-color: hsl(320, 30%, 60%);
+            }
+
+            .lepton {
+                border: 2pt solid hsl(160, 30%, 40%);
+            }
+
+            .lepton:hover {
+                background-color: hsl(160, 30%, 80%);
+            }
+
+            .lepton.selected {
+                background-color: hsl(160, 30%, 60%);
+            }
+
+            .gauge-boson {
+                border: 2pt solid hsl(0, 65%, 40%);
+            }
+
+            .gauge-boson:hover {
+                background-color: hsl(0, 65%, 80%);
+            }
+
+            .gauge-boson.selected {
+                background-color: hsl(0, 65%, 60%);
+            }
+
+            .scalar-boson {
+                border: 2pt solid hsl(43, 100%, 40%);
+            }
+
+            .scalar-boson:hover {
+                background-color: hsl(43, 100%, 80%);
+            }
+
+            .scalar-boson.selected {
+                background-color: hsl(43, 100%, 60%);
+            }
+
+            #feynman-container {
+                flex-wrap: wrap;
+            }
+
+            .feynman-diagram {
+                flex: 0 0 180px;
+                height: 180px;
+                margin-bottom: 1rem;
+            }
+
+            #footer {
+                font-size: small;
+                color: gray;
+            }
+        </style>
+    </head>
+
+    <body>
+        <h1>Visualising EFT Feynman Vertices</h1>
+
+        <p>This page generates Feynman vertices of particles interacting in
+        an effective theory. Currently available models are SMEFTsim and SMEFTatNLO.</p>
+
+        <h2>EFT Model</h2>
+        
+        <p>Please select your EFT (currently SMEFTsim U35 by default):</p>
+        
+        <select id="select-model">
+            <option value="SMEFTsim">SMEFTsim</option>
+        </select>
+
+        <h2>Flavour symmetry</h2>
+
+        <p>Please select your flavour symmetry (currently unused):</p>
+
+        <select id="select-flavour">
+            <option value="U35">U(3)5</option>
+            <option value="topU3l">topU3l</option>
+            <option value="general">General</option>
+            <option value="MFV">MFV</option>
+        </select>
+
+        <h2>Particle</h2>
+
+        <p>Please select the particle of your choice:</p>
+
+        <input id="particle-selection" style="display: none" />
+
+        <table id="particle-select">
+            <tbody>
+              <tr>
+                <td class="particle quark" data-value="u">u</td>
+                <td class="particle quark" data-value="c">c</td>
+                <td class="particle quark" data-value="t">t</td>
+                <td class="particle quark" data-value="u~"><span class="anti">u</span></td>
+                <td class="particle quark" data-value="c~"><span class="anti">c</span></td>
+                <td class="particle quark" data-value="t~"><span class="anti">t</span></td>
+                <td class="particle gauge-boson" data-value="g">g</td>
+                <td class="particle scalar-boson" data-value="H">H</td>
+              </tr>
+              <tr>
+                <td class="particle quark" data-value="d">d</td>
+                <td class="particle quark" data-value="s">s</td>
+                <td class="particle quark" data-value="b">b</td>
+                <td class="particle quark" data-value="d~"><span class="anti">d</span></td>
+                <td class="particle quark" data-value="s~"><span class="anti">s</span></td>
+                <td class="particle quark" data-value="b~"><span class="anti">b</span></td>
+                <td class="particle gauge-boson" data-value="a">γ</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="particle lepton" data-value="e-">e<sup>-</sup></td>
+                <td class="particle lepton" data-value="mu-">μ<sup>-</sup></td>
+                <td class="particle lepton" data-value="ta-">τ<sup>-</sup></td>
+                <td class="particle lepton" data-value="e+">e<sup>+</sup></td>
+                <td class="particle lepton" data-value="mu+">μ<sup>+</sup></td>
+                <td class="particle lepton" data-value="ta+">τ<sup>+</sup></td>
+                <td class="particle gauge-boson" data-value="Z">Z</td>
+                <td></td>
+              </tr>
+              <tr>
+                <td class="particle lepton" data-value="ve">ν<sub>e</sub></td>
+                <td class="particle lepton" data-value="vm">ν<sub>μ</sub></td>
+                <td class="particle lepton" data-value="vt">ν<sub>τ</sub></td>
+                <td class="particle lepton" data-value="ve~"><span class="anti">ν</span><sub>e</sub></td>
+                <td class="particle lepton" data-value="vm~"><span class="anti">ν</span><sub>μ</sub></td>
+                <td class="particle lepton" data-value="vt~"><span class="anti">ν</span><sub>τ</sub></td>
+                <td class="particle gauge-boson" data-value="W+">W<sup>+</sup></td>
+                <td class="particle gauge-boson" data-value="W-">W<sup>-</sup></td>
+              </tr>
+            </tbody>
+            </table>
+
+            <h2>EFT parameters</h2>
+        
+            <p>Please select your EFT parameters from the following options:</p>
+    
+            <p>
+            <select id="selecteft" name="selecteft" placeholder="test"> </select>
+            </p>
+
+            <p>
+            <span id="eft-term"></span>
+            </p>
+
+        <h2>Result vertices</h2>
+
+        <div id="feynman-container" style="display: flex; justify-content: center;">
+            <p>Please make sure to select both EFT parameters and a particle.</p>
+        </div>
+
+        <div id="footer">Made with &#127867; by Stephen Nicholas Swatman and
+        Rahul Balasubramanian using <a
+        href="https://photino.github.io/jquery-feyn/">jQuery.Feyn</a> and <a
+        href="https://smeftsim.github.io/">SMEFTsim</a>.</div>
+
+        <script>
+            var term_map = {
+                "cG"		:  "Q_G =  f^{abc} G_\\mu^{a\\nu} G_\\nu^{b\\rho} G_\\rho^{c\\mu}  ",
+                "ceW"		:  "Q_{eW} =  (\\bar l_p \\sigma^{\\mu\\nu} e_r) \\sigma^i H W_{\\mu\\nu}^i ",
+                "cee"		:  "Q_{ee} =  (\\bar e_p \\gamma_\\mu e_r)(\\bar e_s \\gamma^\\mu e_t) ",
+                "cGtil"		:  "Q_{\\widetilde  G} =  f^{abc} \\widetilde  G_\\mu^{a\\nu} G_\\nu^{b\\rho} G_\\rho^{c\\mu}  ",
+                "ceB"		:  "Q_{eB} =  (\\bar l_p \\sigma^{\\mu\\nu} e_r) H B_{\\mu\\nu} ",
+                "cuu"		:  "Q_{uu} =  (\\bar u_p \\gamma_\\mu u_r)(\\bar u_s \\gamma^\\mu u_t) ",
+                "cW"		:  "Q_W =  \\epsilon^{ijk} W_\\mu^{i\\nu} W_\\nu^{j\\rho} W_\\rho^{k\\mu} ",
+                "cuGRe"		:  "Q_{uG} =  (\\bar q_p \\sigma^{\\mu\\nu} T^a u_r) \\widetilde  H \\, G_{\\mu\\nu}^a ",
+                "cdd"		:  "Q_{dd} =  (\\bar d_p \\gamma_\\mu d_r)(\\bar d_s \\gamma^\\mu d_t) ",
+                "cWtil"		:  "Q_{\\widetilde  W} =  \\epsilon^{ijk} \\widetilde  W_\\mu^{i\\nu} W_\\nu^{j\\rho} W_\\rho^{k\\mu} ",
+                "cuWRe"		:  "Q_{uW} =  (\\bar q_p \\sigma^{\\mu\\nu} u_r) \\sigma^i \\widetilde  H \\, W_{\\mu\\nu}^i ",
+                "ceu"		:  "Q_{eu} =  (\\bar e_p \\gamma_\\mu e_r)(\\bar u_s \\gamma^\\mu u_t) ",
+                "cuBRe"		:  "Q_{uB} =  (\\bar q_p \\sigma^{\\mu\\nu} u_r) \\widetilde  H \\, B_{\\mu\\nu} ",
+                "ced"		:  "Q_{ed} =  (\\bar e_p \\gamma_\\mu e_r)(\\bar d_s\\gamma^\\mu d_t) ",
+                "cH"		:  "Q_H =  (H^\\dagger H)^3",
+                "cdG"		:  "Q_{dG} =  (\\bar q_p \\sigma^{\\mu\\nu} T^a d_r) H\\, G_{\\mu\\nu}^a ",
+                "cud1"		:  "Q_{ud}^{(1)} =  (\\bar u_p \\gamma_\\mu u_r)(\\bar d_s \\gamma^\\mu d_t) ",
+                "cdW"		:  "Q_{dW} =  (\\bar q_p \\sigma^{\\mu\\nu} d_r) \\sigma^i H\\, W_{\\mu\\nu}^i ",
+                "cud8"		:  "Q_{ud}^{(8)} =  (\\bar u_p \\gamma_\\mu T^a u_r)(\\bar d_s \\gamma^\\mu T^a d_t) ",
+                "cHbox"		:  "Q_{H\\Box} =  (H^\\dagger H)\\Box(H^\\dagger H) ",
+                "cdB"		:  "Q_{dB} =  (\\bar q_p \\sigma^{\\mu\\nu} d_r) H\\, B_{\\mu\\nu} ",
+                "cHDD"		:  "Q_{HD} =  \\ \\left(D^\\mu H^\\dagger  H\\right) \\left(H^\\dagger D_\\mu H\\right) ",
+                "cHG"		:  "Q_{HG} =  H^\\dagger H\\, G^a_{\\mu\\nu} G^{a\\mu\\nu} ",
+                "cHl1"		:  "Q_{Hl}^{(1)} =  (H^\\dagger i\\overleftrightarrow{D}_\\mu H)(\\bar l_p \\gamma^\\mu l_r)",
+                "cle"		:  "Q_{le} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar e_s \\gamma^\\mu e_t)",
+                "cHGtil"	:  "Q_{H\\widetilde  G} =  H^\\dagger H\\, \\widetilde  G^a_{\\mu\\nu} G^{a\\mu\\nu} ",
+                "cHl3"		:  "Q_{Hl}^{(3)} =  (H^\\dagger i\\overleftrightarrow{D}^i_\\mu H)(\\bar l_p \\sigma^i \\gamma^\\mu l_r)",
+                "clu"		:  "Q_{lu} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar u_s \\gamma^\\mu u_t) ",
+                "cHW"		:  "Q_{HW} =  H^\\dagger H\\, W^i_{\\mu\\nu} W^{I\\mu\\nu} ",
+                "cHe"		:  "Q_{He} =  (H^\\dagger i\\overleftrightarrow{D}_\\mu H)(\\bar e_p \\gamma^\\mu e_r)",
+                "cld"		:  "Q_{ld} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar d_s \\gamma^\\mu d_t) ",
+                "cHWtil"	:  "Q_{H\\widetilde  W} =  H^\\dagger H\\, \\widetilde  W^i_{\\mu\\nu} W^{i\\mu\\nu} ",
+                "cHq1"		:  "Q_{Hq}^{(1)} =  (H^\\dagger i\\overleftrightarrow{D}_\\mu H)(\\bar q_p \\gamma^\\mu q_r)",
+                "cqe"		:  "Q_{qe} =  (\\bar q_p \\gamma_\\mu q_r)(\\bar e_s \\gamma^\\mu e_t)",
+                "cHB"		:  "Q_{HB} =   H^\\dagger H\\, B_{\\mu\\nu} B^{\\mu\\nu} ",
+                "cHq3"		:  "Q_{Hq}^{(3)} =  (H^\\dagger i\\overleftrightarrow{D}^i_\\mu H)(\\bar q_p \\sigma^i \\gamma^\\mu q_r)",
+                "cqu1"		:  "Q_{qu}^{(1)} =  (\\bar q_p \\gamma_\\mu q_r)(\\bar u_s \\gamma^\\mu u_t)",
+                "cHBtil"	:  "Q_{H\\widetilde B} =  H^\\dagger H\\, \\widetilde  B_{\\mu\\nu} B^{\\mu\\nu} ",
+                "cHu"		:  "Q_{Hu} =  (H^\\dagger i\\overleftrightarrow{D}_\\mu H)(\\bar u_p \\gamma^\\mu u_r)",
+                "cqu8"		:  "Q_{qu}^{(8)} =  (\\bar q_p \\gamma_\\mu T^a q_r)(\\bar u_s \\gamma^\\mu T^a u_t) ",
+                "cHWB"		:  "Q_{HWB} =  H^\\dagger \\sigma^i H\\, W^i_{\\mu\\nu} B^{\\mu\\nu}",
+                "cHd"		:  "Q_{Hd} =  (H^\\dagger i\\overleftrightarrow{D}_\\mu H)(\\bar d_p \\gamma^\\mu d_r)",
+                "cqd1"		:  "Q_{qd}^{(1)} =  (\\bar q_p \\gamma_\\mu q_r)(\\bar d_s \\gamma^\\mu d_t) ",
+                "cHWBtil"	:  "Q_{H\\widetilde  WB} =  H^\\dagger \\sigma^i H\\, \\widetilde  W^i_{\\mu\\nu} B^{\\mu\\nu} ",
+                "cHudRe"	:  "Q_{Hud}+\\hc =  i(\\widetilde  H ^\\dagger D_\\mu H)(\\bar u_p \\gamma^\\mu d_r)",
+                "cqd8"		:  "Q_{qd}^{(8)} =  (\\bar q_p \\gamma_\\mu T^a q_r)(\\bar d_s \\gamma^\\mu T^a d_t)",
+                "ceH"		:  "Q_{eH} =  (H^\\dagger H)(\\bar l_p e_r H)",
+                "cll"		:  "Q_{ll} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar l_s \\gamma^\\mu l_t)",
+                "cledq"		:  "Q_{ledq} =  (\\bar l_p^j e_r)(\\bar d_s q_{tj})",
+                "cuH"		:  "Q_{uH} =  (H^\\dagger H)(\\bar q_p u_r \\widetilde  H )",
+                "cqq1"		:  "Q_{qq}^{(1)} =  (\\bar q_p \\gamma_\\mu q_r)(\\bar q_s \\gamma^\\mu q_t) ",
+                "cquqd1"	:  "Q_{quqd}^{(1)} =  (\\bar q_p^j u_r) \\epsilon_{jk} (\\bar q_s^k d_t) ",
+                "cdHRe"		:  "Q_{dH} =  (H^\\dagger H)(\\bar q_p d_r H)",
+                "cqq3"		:  "Q_{qq}^{(3)} =  (\\bar q_p \\gamma_\\mu \\sigma^i q_r)(\\bar q_s \\gamma^\\mu \\sigma^i q_t) ",
+                "cquqd8"	:  "Q_{quqd}^{(8)} =  (\\bar q_p^j T^a u_r) \\epsilon_{jk} (\\bar q_s^k T^a d_t) ",
+                "clq1"		:  "Q_{lq}^{(1)} =  (\\bar l_p \\gamma_\\mu l_r)(\\bar q_s \\gamma^\\mu q_t)",
+                "clequ1"	:  "Q_{lequ}^{(1)} =  (\\bar l_p^j e_r) \\epsilon_{jk} (\\bar q_s^k u_t) ",
+                "clq3"		:  "Q_{lq}^{(3)} =  (\\bar l_p \\gamma_\\mu \\sigma^i l_r)(\\bar q_s \\gamma^\\mu \\sigma^i q_t) ",
+                "clequ3"	:  "Q_{lequ}^{(3)} =  (\\bar l_p^j \\sigma_{\\mu\\nu} e_r) \\epsilon_{jk} (\\bar q_s^k \\sigma^{\\mu\\nu} u_t) "
+            }
+
+            var modelParam = {
+                "topU3l": [  "cuW","cju1","ctj1","cju8","cleju1","ctj8","cuG","ctHH","cuB","cQQ8","cQQ1","cuH","cll","cledj","ctb8","cdB","cld","cle","ctb1","cdH","cdW","cjQtu1","clu","cjQtu8","cQujb8","cee","ced","cjujd8","cQujb1","cjujd1","cQd1","ceu","cQd8","cHQ3","cHQ1","ceB","ceH","ceW","cjd1","cjtQd1","cQl1","cjd8","cjtQd8","clebQ","cHWBtil","cHGtil","cutbd8","cuu1","cHWtil","cHWB","ctu8","cuu8","cQt1","cud1","cQt8","cud8","cleju3","cHbox","ctW","cH","ctB","ctH","ctt","cQu1","cQl3","cQu8","cjQbd8","cte","ctG","cdd8","ctl","cjQbd1","cdd1","cbb","cGtil","cutbd1","ctu1","cHl1","cHl3","cll1","cQj38","cHtb","cQj31","cG","cQtQb1","cHDD","cQtQb8","cW","cQb8","cjuQb1","cbj1","cjuQb8","cleQt1","cbj8","cleQt3","cHud","cjujd81","cjj38","cjj31","cHj3","cbu8","cbe","cbu1","cbl","cQj11","cjujd11","cQj18","clj1","cWtil","clj3","cbG","cbH","ctd1","cHBtil","cje","cbW","cHj1","cjj18","cbB","cHd","cHe","cQe","cHt","cHu","cdG","ctd8","cHB","cQtjd8","cHG","cjj11","cQb1","cQtjd1","cbBB","cbd8","cHbq","cHW","cbd1"], 
+                 "U35": [ "cdd","cuW","cHWBtil","cHGtil","cquqd8","clq3","clq1","cuG","ced","cquqd1","cuB","cuu1","cHl1","cHWtil","cHWB","cll1","cHl3","cuH","cll","cuu","cdG","cud1","cdB","cld","cle","cG","cqe","cqd1","cdW","cHDD","cquqd81","clu","cledq","cW","cHq3","cee","cHq1","cHd","cHe","cHBtil","cqu1","cqu8","cHud","cdH","cqd8","ceu","cH","cHu","cHbox","cquqd11","cqq3","cqq11","cqq1","cGtil","cHB","cWtil","ceB","cHG","cqq31","cud8","ceH","ceW","cHW","cdd1","clequ3","clequ1"], 
+                 "MFV": ["cqd80","cuu10","clequ30","cHud0","cquqd11","cqu80","cud10","cuu0","cHl1","cHWB","cdB0","clequ10","cHl3","cHq10","cHd0","cH","cdW0","cdH0","cle","ceu0","cG","cqq310","cuB0","cHDD","cHu0","cquqd81","cHbox","cHq30","cqq10","cW","cqq30","cll","cee","cqq110","cHe","cledq0","cuG0","cud80","cuW0","cdG0","cquqd1","cqd810","clu0","cquqd8","cdd10","cqu110","cuH0","cHB","ceB","cHG","cqd10","cqu10","clq30","ceH","ceW","cqe0","ced0","cld0","cll1","cHW","clq10","cqd110","cdd0","cqu810"], 
+                "general": ["cqe3313","cqe3312","cqe3311","cqe2213","clequ11233","cqu82213","cle2332","clequ31213","clequ31212","clequ31211","cqu11323","clequ11231","cledq3133","cledq3132","cledq3131","cdB22","cdB23","cee1322","cee1323","cud82213","cud82212","cud82211","cqd11322","cld2222","cld2223","clu3323","clu3322","cqd12322","cqd12323","cqd12321","clequ32121","clequ32122","clequ32123","clequ31323","clequ31322","clequ31321","ceu1221","cqd11133","ceu1223","ceu1222","cledq2332","cledq2333","cledq2331","cqu11133","clequ11331","ceW11","cqu82211","ceW13","cqu11321","cld2323","cld2322","cld2321","cuW23","cqu11322","cHl111","cle3333","cHd13","cHd12","cqd81122","cqd81123","cquqd13232","cledq1313","cquqd11312","clequ11221","clequ11222","clequ11223","clequ12122","clequ12123","cHu12","clequ12121","ceu1122","ceu1123","clequ32221","cqu12233","clequ33232","clequ33231","cdW12","cll3323","clequ33332","cqu13323","clq12331","clequ33331","clq13312","clq13313","clq13311","clq31323","clq31322","clq31321","ced1133","clq11123","cdd1331","cqu82321","cdd1333","cdd1332","cHe23","cHe22","clequ13121","cdW31","cdW32","cdW33","cqu81211","ced1113","clequ12333","clequ12332","clequ12331","cqu11312","cqd81331","cqu81213","cqd81333","cqd81332","clequ12232","clequ12233","cqq11133","clequ12231","cqe1211","cqd81232","cqe1213","ced1231","cquqd81112","clu1211","cquqd12312","clq32212","clq32213","ced1222","ced1223","cquqd13112","cqu82312","cquqd81223","cquqd82323","cquqd82322","cquqd82321","cquqd13113","cud13311","cud13312","cud13313","ceH23","ceH22","ceH21","clequ13123","cquqd83131","cdd2233","cquqd83132","cuW11","cuW13","cud81123","ced3323","cld3322","cld3323","clequ32313","clequ32312","clequ32311","ced3322","cledq1133","cHe13","cqd11312","cqd11313","clequ13112","clequ13113","cqu81233","cqu81232","cqu81231","cW","clequ31312","clequ31313","cee2323","clequ31311","cle2331","cquqd81221","cdH21","cdH22","cdH23","cHu11","cquqd82213","cquqd82212","cquqd82211","clq12323","cqq31322","cqq31323","cqu81321","cud82312","cud82313","cud81333","cud82311","cquqd13323","cquqd13122","ced2333","ced2332","ced2331","cud81233","cqq33333","cquqd13121","cle1332","cud12313","ced2233","cqe1133","cee2223","clu1322","cqd82213","cud11222","cquqd12321","clequ13321","cqq11122","cquqd81121","cquqd81122","cquqd81123","cuu1221","ceu1113","ceu1112","ceu1111","cHu13","cquqd83221","cquqd83223","cquqd83222","cqe2211","clequ31223","cle2333","clequ31221","cdd1111","cle1111","cdd1113","cdd1112","cld1333","cud81323","ceu2321","cee1212","cee1213","cld2213","cld2212","cld2211","cud81321","cqu81123","cqu81122","clequ13331","cquqd82122","cle3311","clequ13332","cud81232","cqu81333","cledq3331","clequ13333","cHud13","cHud12","cHud11","ced1321","cuu1322","cuu1323","cuH23","cuH22","cuH21","cqu83322","cll2332","cHq311","cHq312","cHq313","ced3312","cld1112","clq11332","clq11333","clq11331","clequ31132","clequ31133","clequ31131","cquqd11231","cquqd11233","cquqd11232","cWtil","clequ12221","ced3311","cqq11221","cquqd81222","cqq11223","cqq11222","clequ12223","cHud31","cqe1311","cqe1313","cqe1312","cquqd12331","cquqd12333","cquqd12332","clequ32212","clequ32213","clequ32211","cledq3232","clequ33132","cledq3233","cqq31111","clq31212","cqq31113","cqq31112","cld1231","cld1232","cld1233","cquqd82313","clq12233","cud12332","cledq2112","cledq2113","cledq2111","cledq1333","cquqd13321","cledq1331","ceW12","clu1331","clu1332","clu1333","cquqd11121","cll1231","cll1232","cll1233","cqu83312","cee1133","clu2333","cHG","cquqd81313","cquqd81312","cquqd81311","cquqd13322","cledq3333","cuG21","cledq3332","cqd11123","cHW","cqd13333","cHq123","cqd82233","cledq1222","clq32322","clq32323","ced1312","clq32321","cqd82331","cqd82332","cqd82333","cud11323","cud11322","cud11321","cquqd11123","cuH11","cHd23","cledq3223","cledq3222","ceu2222","cquqd82311","cdG12","clequ11112","clequ11113","clequ11111","cqu11112","cHl112","cuB32","cuB33","cuB31","clq11112","clq11113","clequ32321","cquqd81111","cqd11222","cqd11223","cqd11221","cquqd13331","clq12322","cle1231","cld1122","cle1233","cle1232","cdH11","clq12313","cdH13","cdH12","cqu11333","cqu11332","cqu11331","cqe2212","cledq3122","cledq3123","cqu11122","cqq31122","cquqd82222","cquqd82223","cqq12222","cqq12223","cquqd81113","cqq11213","cqu12332","cqu12333","cqu12331","clequ32133","clu3333","clequ32131","cdB13","cdB12","cee1313","ceu1333","clequ13322","ceu1331","cqd11122","cqd12331","cqd12333","cquqd11313","ceu1232","ceu1233","ceu1231","cqe2312","clequ11131","cqd12233","cHWBtil","cquqd11311","cuG22","cHl122","cHl123","cHGtil","cuG23","cquqd83311","cquqd83313","cquqd83312","cqd81111","cld2332","cld2333","cqe2321","cuG13","cqe2323","cqe2322","cHWtil","cHWB","cuG12","cquqd12323","cqd81133","clq31133","cqd81112","clq31211","clequ32222","ced1313","clequ12131","clequ11232","clequ12133","clequ12132","cledq2233","cledq2232","cledq2231","cqd11333","cHud22","cHud23","cHud21","cHbox","cdd1123","clequ33321","clequ33323","clequ33322","cud81311","cuu1212","cuu1213","cquqd11322","cquqd82132","cquqd82133","cquqd82131","cqu82333","cqu82332","cqu82331","cquqd12211","cHe33","clq31223","cle1222","cdd1322","cdd1323","cquqd81231","cuu2323","clq31221","clequ13213","clequ13212","clequ13211","cquqd13212","cqu81332","clq12333","cqu11123","cqu81331","cquqd81212","cquqd81213","cqq11212","cquqd81211","cqe1221","cqe1223","clequ12222","cqd81223","cqd81222","cqd81221","ceB13","clequ11312","ced1211","cHq122","ced1213","ced1212","cdd2222","cdd2223","cuu1133","cdG11","cqq32222","cqq32223","ceu3313","ceu3312","ceu3311","cqq31123","ceH31","ceH32","ceH33","cledq3213","cledq1332","cdd3333","cquqd81233","cud81133","cqu13313","clequ11123","ced1111","cld3311","cld3313","cld3312","cquqd81322","cquqd81323","cqq11322","cquqd81321","cqu13333","cquqd12111","clq31313","cquqd12113","clq31311","cqd83311","clq32311","cquqd13131","cquqd13132","cquqd13133","cee2233","cqu12311","cqq31331","cdd1213","cqq31333","cqq31332","cud11213","cud11212","cud11211","cdG22","cqq31231","cqq31232","cdB32","cqe1122","cqe1123","ceu2312","ceu2313","clu2331","ced1233","cqu83313","cud81223","ced2321","ced2322","cquqd12112","clu1111","clu1112","clu2332","cud83311","cqu82322","cud83313","cud12321","cqu82323","cquqd11122","cqd83313","cee3333","ced2323","cquqd81133","cqq11313","cquqd81131","cquqd83211","cquqd83212","cquqd83213","cle1123","cle1122","cud11133","cuu1331","cle2322","cqq12233","cle2321","clequ31231","clequ31233","cqd83312","cledq3111","cledq3113","cledq3112","cqu12323","clequ33113","cqu81112","cqu81113","cqu12322","cquqd13231","cquqd12231","cquqd12232","cquqd12233","clequ32113","cHBtil","cee1222","cll1331","cqu12312","cll1333","clequ11332","cHl313","cHl312","cHl311","cuu1233","clequ13312","clequ13313","cqd11112","cqd11113","cqu82313","cuH31","cuH32","clq33313","cquqd82333","ced2211","clq11321","clq11323","clq11322","clq31213","clq33333","cuu1313","clu1232","cqu11113","clequ11333","cle3312","cle3313","cqu11223","clequ31121","cquqd13311","cquqd13312","cquqd13313","cle2323","cee1123","cHu33","cqd11331","clq31312","cll1322","cll1111","cle2212","cle2213","cle2211","cle1113","cqq31233","clequ12211","cll2233","clequ33211","clequ33213","clequ33212","cqd13322","clequ32112","clq12223","clq12222","cledq2123","cledq2122","cledq2121","clu2223","cledq2323","clq13333","cledq2322","cdd1313","cdW13","cdW11","clq11211","cqu11233","clq11213","clq11212","clu2322","clu2323","clu2321","cquqd11111","cquqd11112","cquqd11113","cquqd13233","cld1123","clequ13222","clequ13223","clequ33333","cHe11","clequ12311","clequ12313","clequ12312","cqd81313","cqd81312","cqd81311","clequ11322","cld1331","clequ33131","cqd83322","cqd83323","cld1133","cqd13323","cqd81231","cud11312","cud11313","cld1113","ced1322","cqd13311","cqe1212","cud81222","cqd82323","cqd82322","cqd82321","cqd81233","cud81221","ceu2211","cld1332","ceu2213","ceu2212","cqe2311","cHq112","cHq113","cHq111","cquqd13333","cledq1211","cledq1212","cledq1213","cqd11231","cqd11233","cqd11232","clequ32331","clequ32333","clequ32332","clequ13132","clequ13133","cqd11332","clequ13131","clq31222","cquqd82312","cll1113","cll1112","clu2212","ceB11","ceB12","clu2211","cdd1223","cdd1222","cdd1221","clu1113","cledq3221","cqq13323","cud12322","ceu2223","cHl322","cHl323","cqe3333","cud12323","cqe2313","cquqd82231","cquqd82233","cquqd82232","cledq1131","cquqd11131","cud82233","ced1221","cud81313","cud81312","ced2212","ced2213","clq11233","cud82331","cud82332","cud82333","cdd2323","clq32211","cqe1113","cqe1112","cqe1111","ceu1321","ceu1322","ceu1323","cle1312","cle1313","cud83322","cle1311","clq32331","cquqd81331","clq32333","clq32332","cqd12223","cqd12222","cud81322","ceW21","cHl133","cqu82233","cquqd83322","cquqd83323","cHd33","ceW22","ceW33","ceW32","ceW31","ceW23","cqe2332","cqe2333","cqe2331","cqq12323","cledq3323","cuu3333","cdd1133","clu3312","clq31123","clq31122","cuG33","cuG32","cuG31","ceu3322","cqu12211","cquqd11331","cqu12213","cquqd81132","cuG11","clequ33312","clequ33313","clq12311","cledq2221","clequ11323","cledq2223","cud81332","cledq3313","clequ31112","cledq3312","cHq333","cud81211","cledq3311","cqd13312","cqd13313","cud12212","ced1311","cquqd82121","cquqd82123","cud12213","clq11311","clq11312","ced3333","cquqd12311","cle1223","clequ31113","cquqd13221","cquqd13222","cud12211","cquqd83133","cqq11323","cH","cle2223","cle2222","cqd81212","cqd81213","cqd81211","cG","cqu81323","cqu81322","clequ33223","cqe1333","cud81122","cqe1331","clequ12213","cee1113","cledq2311","cledq2312","cledq2313","cqe1232","cld1221","ceu3323","cdG23","cuu1123","cdG21","clequ11213","clq12211","clq12212","cqu12223","cqq31133","cud11311","cqq32233","cquqd83113","cquqd83112","cquqd83111","cle1221","cqq32323","cud13333","cqq32332","cuW33","cuW32","cuW31","cdd3323","clq31232","cHq133","clequ33233","cqu83333","cledq1311","clq11221","clq11222","clq11223","cqu83311","clq12321","ced1112","cqq11332","cquqd81333","cqu81212","cll1122","cle2312","clu2313","clu2312","clu2311","cll1123","cquqd82112","cquqd12121","cquqd12122","cquqd12123","cqu12321","cud11223","cud11221","cquqd13123","clequ31331","clequ31332","clequ31333","cquqd83321","cqd82212","cqd82211","clequ31232","cle1323","cle1322","cle1321","cledq1231","cqq31223","cqq31222","cqq31221","ceu2322","cquqd11332","clu1123","clu1122","cquqd82113","cquqd11333","clu1313","cud12331","cdB21","cud12333","cud83312","cud81212","cud81213","clequ33311","cledq1221","cledq1223","clq11133","ced2311","ced2313","ced2312","cle1213","cle1212","cle1211","ceB21","clu2222","ceB23","ceB22","clequ11321","cqd12312","clequ13111","cqq11123","cquqd11132","cHud33","cll1222","clequ11313","clq12312","cud11123","clu2213","cqu81111","cledq1321","cquqd12223","cquqd12222","cquqd12221","cud12222","cle2313","clq11232","cee1333","clu3311","cld2233","clu3313","cqe1332","cdG32","cledq3121","cee1232","cee1233","ceu2311","clequ32111","ceu1211","ceu1212","ceu1213","cHd22","clequ13221","cledq3231","cqd12313","cdG13","cqd12311","cquqd12212","cledq2321","cledq2222","clq33323","clq33322","cledq3321","cud13323","clu1222","clu1223","clu1221","cee2222","cee1111","cud82222","cquqd11213","cquqd11212","cquqd11211","cud82223","cle2311","clequ31111","cle3323","cle3322","cquqd82221","cll2222","cll2223","ceu2333","cquqd12313","clq31111","clq31112","clq31113","clequ33221","clequ33222","cll1332","clequ11211","cqu12222","clequ11212","cll3333","cqu13312","cqu13311","cledq2213","cledq2211","clequ32231","clequ32232","clequ32233","ced3313","clu1312","clq31331","clq31332","clu1311","ced1123","ced1122","cqd82223","ceu1133","clq13323","clq13322","cledq2132","cledq2133","cqu12313","cdW22","cdW21","cqu11222","cuu1223","cqd11111","cHd11","cledq2212","cuu1222","cHl333","cledq1113","ced1332","clequ13311","cld1322","cld1323","cledq1112","cll1212","cll1213","cld1321","clequ13231","cledq1111","clequ13233","cqu12212","cll2323","cqd81322","clq11313","cqu81311","clequ12322","cqu81313","cqd83333","clequ33123","clequ33122","clequ33121","clq32223","clq32222","cqd81321","cqq11113","cqq11112","cqq11111","cqd81323","cqq12332","cquqd82331","cquqd82332","cld1212","cqd82312","ced1333","cud83323","cqd82311","cledq3322","cud81331","clequ11132","cuH33","cdB11","cuu1113","cquqd83123","cuu1111","clequ13232","cle1112","cld3333","clequ13323","cquqd13223","ceu1332","ceH12","ceH13","cledq1322","ceH11","cuB11","cuB12","cuB13","cqd11323","cld1213","cqd11321","cld1211","cqu81221","cqu81222","cqu81223","clq31231","clq31233","clequ12321","cdd1231","cdd1232","cdd1233","cqu11311","cqu81312","cqu11313","cud81231","cqe3322","clu1231","cqe3323","clequ12323","cdH33","cdH32","cdH31","cle1331","cquqd13111","cqu13322","cle1133","clu1233","cqu11221","cuu2233","cud11333","cledq1122","cledq1123","cledq1121","cledq3212","cud82323","cud82322","cud82321","cqq33323","cld1111","cdd2332","cqe1222","cqu11111","ced2223","ced2222","cqd12212","cqd12213","cqd12211","cud83333","cud11122","cud12312","clu1213","cqq31212","cqq11333","ceu1311","cud12311","ceu1313","ceu1312","cledq1323","cledq1312","cquqd83333","cuu3323","cqu82223","cqu82222","cuu2332","cquqd83232","cquqd83233","cquqd83231","cGtil","clequ33133","cHl113","cud11111","cud11112","cud11113","cld2312","cld2313","cqd81113","cld2311","cqq31313","clequ31123","cdd1122","ced1232","cquqd11323","cquqd12213","cquqd11321","clequ31122","clequ12113","clequ12112","clequ12111","clequ32132","clequ11311","cqe2222","cqe2223","clq32233","cqu81133","clq11122","cll1313","clq31333","cHDD","cuu1333","cuu1332","cHq323","cHq322","clequ33112","clequ12212","clequ33111","cqu82311","clq33311","clq33312","cuu1231","ceu2323","cqd82313","cdd1212","cledq1132","cquqd83332","cquqd13211","cee1112","cuH12","cuH13","ced1331","cquqd11222","cquqd11223","cHe12","cquqd11221","cqq11232","cqq11233","cquqd81232","cqq11231","cquqd13332","cee1122","cuu2222","cle2233","cuW12","clequ32223","cqu11232","cqe1233","cledq1232","cquqd83331","clequ11133","cquqd12322","cqe1321","cqe1322","cqe1323","cqe1231","cud12233","cHB","clequ32322","cuu1122","cld2331","cqu83323","cuW21","cuW22","cHu23","cld1223","cld1222","ceu3333","cud13322","cdG31","clu1212","cdG33","cquqd13213","cuu2223","cud81111","cud81113","cuu1112","cdW23","cqu11211","cqu11212","cqu11213","clu1323","clequ32323","clu1321","cHud32","cll1223","cquqd11133","cll1221","cquqd83121","ced1323","cHu22","clq11231","cqd11212","cquqd12133","cquqd12132","cquqd12131","clequ13122","cdB31","cqd12332","cld1313","cld1312","cld1311","cqd11311","clq32313","clq32312","clequ11122","clq12213","cud11231","cud11233","cud11232","cqu11231","cee3323","cquqd83122","ceB31","cqd82222","cud11331","cud11332","cle1333","cud81112","clu1133","cledq3211","ceu2233","cqq31213","clq11111","cledq2131","cll1323","ceu2332","cqe2233","ceu2331","clequ11121","cuB21","cuB23","cuB22","cud12223","cledq1233","cquqd81332","cqu82212","clq12332","cqd11213","cdB33","cqd11211","cqq11331","ceB32","ceB33","clu2233","clequ31222","cqq13333","cuu1232","cll1133","cquqd82111" ]
+            }
+
+            function prettyparticle(p) {
+                if(p == "a") {
+                    return "γ";
+                } else if(p == "W+") {
+                    return "W&#8314;";
+                } else if(p == "W-") {
+                    return "W&#8315;";
+                } else if(p == "ve") {
+                    return "νe";
+                } else if(p == "ve~") {
+                    return "νe~";
+                } else if(p == "vm") {
+                    return "νμ";
+                } else if(p == "vm~") {
+                    return "νμ~";
+                } else if(p == "vt") {
+                    return "ντ";
+                } else if(p == "vt~") {
+                    return "ντ~";
+                } else if(p == "e-") {
+                    return "e&#8315;";
+                } else if(p == "e+") {
+                    return "e&#8314;";
+                } else if(p == "mu-") {
+                    return "μ&#8315;";
+                } else if(p == "mu+") {
+                    return "μ&#8314;";
+                } else if(p == "ta-") {
+                    return "τ&#8315;";
+                } else if(p == "ta+") {
+                    return "τ&#8314;";
+                } else {
+                    return p;
+                }
+            }
+
+            function render() {
+                var model = $('#select-flavour').val();
+                var eft = $('#selecteft').val();
+                var par = $('#particle-selection').val();
+
+                if (model) {
+                    console.log(model);
+                    var model = $('#select-flavour').val();
+                    console.log(model);
+                    selecteft.length = 1; // remove all options bar first
+                    if (this.selectedIndex < 1) return; // done  
+                    var selecteft = document.getElementById("selecteft");
+                    for (var x in modelParam[model]){
+                        selecteft.options[selecteft.options.length] = new Option(x, x);
+                    }
+                    console.log(selecteft);
+                };
+
+                if (eft) {
+                        // Rahul: Put your own text here.
+                        $("#eft-term").text("$" + (eft in term_map ? term_map[eft] : "\\sum_{i=0}^n \\mathrm{" + eft + "}") + "$");
+                        MathJax.typeset();
+                    }
+    
+                    if (eft.length && par && model) {
+                        var data = vertices[model][eft][par];
+    
+                        $('#feynman-container').empty();
+    
+                        if (data.length > 0) {
+                            for (var i = 0; i < data.length; ++i) {
+                                $('#feynman-container').append("<div class=\"feynman-diagram\" id=\"container" + i + "\"></div>");
+    
+                                var arr = data[i];
+    
+                                console.log(arr);
+    
+                                var diag = {
+                                    incoming: {},
+                                    vertex: {v: '90, 90'},
+                                    scalar: {line: ''},
+                                    photon: {line: ''},
+                                    fermion: {line: '', arrow: false},
+                                    gluon: {line: '', clockwise: true},
+                                    label: {},
+                                    symbol: {s1: ['78,90', 0, 'blob', 12, 12]}
+                                }
+    
+                                for (var j = 0; j < arr.length; ++j) {
+                                    t = j * (2 * Math.PI) / arr.length;
+                                    p = arr[j];
+    
+                                    if (p == "a" || p == "Z" || p == "W+" || p == "W-") {
+                                        target = "photon";
+                                    } else if (p == "g") {
+                                        target = "gluon";
+                                    } else if (p == "H") {
+                                        target = "scalar";
+                                    } else {
+                                        target = "fermion";
+                                    }
+    
+                                    diag.vertex["v" + j] = (Math.cos(t) * 12 + 90) + "," + (Math.sin(t) * 12 + 90);
+                                    diag.incoming["i" + j] = (Math.cos(t) * 90 + 90) + "," + (Math.sin(t) * 90 + 90);
+                                    diag[target].line += "v" + j + "-i" + j + ",";
+                                    diag.label["t" + j] = [(Math.cos(t - 0.175) * 80 + 90) + "," + (Math.sin(t - 0.175) * 80 + 90 + 5), prettyparticle(p)];
+                                }
+    
+    
+                                $('#container' + i).feyn(diag);
+                            }
+    
+                        } else {
+                            $('#feynman-container').append("<p>This combination did not produce any vertices.</p>");
+                        }
+                    }
+            }
+
+            $('.particle').click(function(){
+                $('#particle-select').find('.particle').removeClass('selected');
+                $(this).addClass('selected');
+                var val = $(this).attr('data-value');
+                $('#particle-selection').val(val);
+                $('#particle-selection').change();
+            });
+
+
+            $('#particle-selection').on('change', render);
+
+            $('#selecteft').on('change', render);
+
+            $("document").ready(function() {
+                $("#selecteft").selectize({
+              });
+            });
+
+            $("document").ready(function() {
+                $("#select-model").selectize({
+              });
+            });
+
+            $("document").ready(function() {
+                $("#select-flavour").selectize({
+              });
+            });
+          </script>
+          <script>
+            MathJax = {
+              tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']]
+              }
+            };
+            </script>
+            <script id="MathJax-script" async
+              src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+            </script>
+    </body>
+</html>
